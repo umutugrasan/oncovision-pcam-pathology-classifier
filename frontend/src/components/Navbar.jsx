@@ -8,6 +8,9 @@ export default function Navbar() {
         <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>
           Anasayfa
         </NavLink>
+        <NavLink to="/performans" className={({ isActive }) => (isActive ? "active" : "")}>
+          Performans
+        </NavLink>
         <NavLink to="/hakkinda" className={({ isActive }) => (isActive ? "active" : "")}>
           Hakkında
         </NavLink>
