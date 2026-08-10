@@ -4,13 +4,27 @@
  */
 export default function SonucKarti({ result }) {
   const isTumor = result.prediction === "Kanserli";
+  const isUncertain = result.uncertain;
   const tumorPct = Math.round(result.tumor_probability * 100);
 
+  const stateClass = isUncertain ? "uncertain" : isTumor ? "tumor" : "healthy";
+  const label = isUncertain
+    ? "🟡 Belirsiz — uzman incelemesi gerekli"
+    : isTumor
+    ? "🔴 Kanserli (Metastaz)"
+    : "🟢 Sağlıklı";
+
   return (
-    <div className={`result ${isTumor ? "tumor" : "healthy"}`}>
-      <div className="result-label">
-        {isTumor ? "🔴 Kanserli (Metastaz)" : "🟢 Sağlıklı"}
-      </div>
+    <div className={`result ${stateClass}`}>
+      <div className="result-label">{label}</div>
+
+      {isUncertain && (
+        <div className="uncertain-note">
+          Model bu görselde karar sınırına çok yakın (tümör olasılığı ~%
+          {tumorPct}). Güvenilir bir tahmin için tek başına yeterli değildir;
+          uzman patolog incelemesi önerilir.
+        </div>
+      )}
       <div className="score-row">
         <span>Tümör olasılığı</span>
         <strong>{tumorPct}%</strong>

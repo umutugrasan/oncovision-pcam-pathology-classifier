@@ -22,6 +22,10 @@ from PIL import Image, ImageDraw
 CLASS_NAMES = {0: "Saglikli", 1: "Kanserli"}
 MODEL_PATH = "models/resnet18_pcam_best.pth"
 TEMP_PATH = "models/temperature.json"
+
+# Belirsizlik bandı: tümör olasılığı bu aralıktaysa "Belirsiz" (kararsız) sayılır
+UNCERTAIN_LOW = 0.40
+UNCERTAIN_HIGH = 0.60
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -168,11 +172,16 @@ def predict_image(image_bytes: bytes, with_heatmap: bool = True) -> dict:
     p_healthy = float(probs[0].item())
     p_tumor = float(probs[1].item())
 
+    # Belirsizlik: tümör olasılığı karar sınırına (0.5) yakınsa model kararsızdır.
+    # Böyle vakalarda net karar yerine "Belirsiz" deyip uzman incelemesine yönlendiririz.
+    uncertain = UNCERTAIN_LOW <= p_tumor <= UNCERTAIN_HIGH
+
     result = {
         "prediction": CLASS_NAMES[pred_idx],
         "tumor_probability": round(p_tumor, 4),
         "healthy_probability": round(p_healthy, 4),
         "confidence": round(max(p_tumor, p_healthy), 4),
+        "uncertain": uncertain,
     }
     if heatmap:
         result["heatmap"] = heatmap
