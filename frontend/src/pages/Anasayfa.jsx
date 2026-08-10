@@ -119,7 +119,9 @@ export default function Anasayfa() {
         )}
 
         {error && <div className="error">⚠️ {error}</div>}
-        {result && <SonucKarti result={result} threshold={threshold} />}
+        {result && (
+          <SonucKarti result={result} threshold={threshold} preview={preview} />
+        )}
 
         {result && (
           <div className="threshold-box">

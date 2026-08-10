@@ -129,28 +129,28 @@ def _compute_gradcam(model, tensor, class_idx):
 
 def _make_overlay(orig_img: Image.Image, cam: np.ndarray, threshold: float = 0.5) -> str:
     """
-    Isı haritasını orijinal görselin üzerine bindirir, en sıcak bölgeyi
-    kare içine alır ve base64 PNG (data URI) döndürür.
+    SAYDAM (RGBA) ısı haritası katmanı üretir: sıcak bölge opak, soğuk bölge
+    şeffaf. Orijinalin üstüne bindirmez — frontend, bu katmanın opaklığını
+    slider ile ayarlar. En sıcak bölge yeşil kare ile işaretlenir.
     """
     W, H = orig_img.size
-    base = np.array(orig_img.convert("RGB")).astype(np.float32)
 
     # CAM'i görsel boyutuna büyüt
     cam_img = Image.fromarray((cam * 255).astype(np.uint8)).resize((W, H), Image.BILINEAR)
     cam_arr = np.array(cam_img).astype(np.float32) / 255.0  # (H, W) 0..1
 
-    heat = _jet_colormap(cam_arr).astype(np.float32)         # (H, W, 3)
-    alpha = (cam_arr * 0.6)[..., None]                       # sıcak yer daha opak
-    blended = base * (1 - alpha) + heat * alpha
-    overlay = Image.fromarray(np.clip(blended, 0, 255).astype(np.uint8))
+    heat = _jet_colormap(cam_arr)                            # (H, W, 3) uint8
+    alpha = (cam_arr * 255).astype(np.uint8)[..., None]      # sıcaklık = opaklık
+    rgba = np.concatenate([heat, alpha], axis=-1)            # (H, W, 4)
+    overlay = Image.fromarray(rgba, mode="RGBA")
 
-    # En sıcak bölgeyi kare içine al
+    # En sıcak bölgeyi kare içine al (tam opak, hep görünür)
     mask = cam_arr > threshold
     if mask.any():
         ys, xs = np.where(mask)
         x0, x1, y0, y1 = int(xs.min()), int(xs.max()), int(ys.min()), int(ys.max())
         draw = ImageDraw.Draw(overlay)
-        draw.rectangle([x0, y0, x1, y1], outline=(0, 255, 0), width=max(1, W // 48))
+        draw.rectangle([x0, y0, x1, y1], outline=(0, 255, 0, 255), width=max(1, W // 48))
 
     buf = io.BytesIO()
     overlay.save(buf, format="PNG")

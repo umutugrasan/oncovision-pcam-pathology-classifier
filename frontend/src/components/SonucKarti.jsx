@@ -2,7 +2,10 @@
  * Tahmin sonucunu gösteren kart.
  * props: result -> backend'den dönen tahmin nesnesi
  */
-export default function SonucKarti({ result, threshold = 0.5 }) {
+import { useState } from "react";
+
+export default function SonucKarti({ result, threshold = 0.5, preview }) {
+  const [hmOpacity, setHmOpacity] = useState(0.6); // ısı haritası opaklığı
   const pTumor = result.tumor_probability;
   const tumorPct = Math.round(pTumor * 100);
   const thrPct = Math.round(threshold * 100);
@@ -50,7 +53,27 @@ export default function SonucKarti({ result, threshold = 0.5 }) {
           <div className="heatmap-title">
             🔥 Modelin odaklandığı bölge (Grad-CAM)
           </div>
-          <img src={result.heatmap} alt="ısı haritası" className="heatmap-img" />
+          <div className="heatmap-stack">
+            {preview && <img src={preview} alt="orijinal" className="heatmap-img" />}
+            <img
+              src={result.heatmap}
+              alt="ısı haritası"
+              className="heatmap-img heatmap-overlay"
+              style={{ opacity: hmOpacity }}
+            />
+          </div>
+          <div className="opacity-row">
+            <span>Şeffaflık</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={hmOpacity}
+              onChange={(e) => setHmOpacity(parseFloat(e.target.value))}
+              className="threshold-slider"
+            />
+          </div>
           <div className="heatmap-hint">
             Kırmızı = modelin en çok baktığı alan · yeşil kare = en yoğun bölge.
             Bu bir dikkat haritasıdır, kesin tümör sınırı değildir.
