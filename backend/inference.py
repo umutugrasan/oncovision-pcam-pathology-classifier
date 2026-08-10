@@ -20,8 +20,13 @@ from PIL import Image, ImageDraw
 # ---- Sabitler ----
 # Eğitimde: 0 = Sağlıklı, 1 = Kanserli
 CLASS_NAMES = {0: "Saglikli", 1: "Kanserli"}
-MODEL_PATH = "models/resnet18_pcam_best.pth"
-TEMP_PATH = "models/temperature.json"
+
+# Desteklenen modeller: ağırlık dosyaları backend/models/ altında
+MODEL_PATHS = {
+    "resnet18": "models/resnet18_pcam_best.pth",
+    "resnet50": "models/resnet50_pcam_best.pth",
+}
+DEFAULT_MODEL = "resnet18"
 
 # Belirsizlik bandı: tümör olasılığı bu aralıktaysa "Belirsiz" (kararsız) sayılır
 UNCERTAIN_LOW = 0.40
@@ -29,16 +34,14 @@ UNCERTAIN_HIGH = 0.60
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def _load_temperature():
-    """Kalibrasyon sicakligini (temperature scaling) yukler. Yoksa 1.0 (etkisiz)."""
+def _load_temperature(model_name):
+    """Modelin kalibrasyon sicakligini yukler. Yoksa 1.0 (etkisiz)."""
     try:
-        with open(TEMP_PATH) as f:
+        with open(f"models/{model_name}_temperature.json") as f:
             return float(json.load(f)["temperature"])
     except (FileNotFoundError, KeyError, ValueError):
         return 1.0
 
-
-TEMPERATURE = _load_temperature()
 
 # Eğitimdeki val_transforms ile birebir aynı (dataset.py)
 _transform = transforms.Compose([
@@ -48,28 +51,38 @@ _transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225]),
 ])
 
-_model = None  # tek sefer yüklenip bellekte tutulur
+_cache = {}  # model_name -> (model, temperature)
 
 
-def build_model():
+def build_model(model_name):
     """Eğitimdeki mimariyi (train.py -> build_model) inference için kurar."""
-    model = models.resnet18(weights=None)  # ağırlıkları biz yükleyeceğiz
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 2)
+    if model_name == "resnet18":
+        model = models.resnet18(weights=None)
+    elif model_name == "resnet50":
+        model = models.resnet50(weights=None)
+    else:
+        raise ValueError(f"Bilinmeyen model: {model_name}")
+    model.fc = nn.Linear(model.fc.in_features, 2)
     return model
 
 
-def load_model():
-    """Modeli yükler ve bellekte önbelleğe alır."""
-    global _model
-    if _model is None:
-        model = build_model()
-        state = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=True)
+def load_model(model_name=DEFAULT_MODEL):
+    """Modeli (ve kalibrasyon sıcaklığını) yükler, bellekte önbelleğe alır."""
+    if model_name not in MODEL_PATHS:
+        raise ValueError(f"Bilinmeyen model: {model_name}")
+    if model_name not in _cache:
+        model = build_model(model_name)
+        state = torch.load(MODEL_PATHS[model_name], map_location=DEVICE, weights_only=True)
         model.load_state_dict(state)
         model.to(DEVICE)
         model.eval()
-        _model = model
-    return _model
+        _cache[model_name] = (model, _load_temperature(model_name))
+    return _cache[model_name]
+
+
+def available_models():
+    """Ağırlık dosyası diskte mevcut olan modellerin listesi."""
+    return [name for name, path in MODEL_PATHS.items() if os.path.exists(path)]
 
 
 def _jet_colormap(x: np.ndarray) -> np.ndarray:
@@ -145,11 +158,12 @@ def _make_overlay(orig_img: Image.Image, cam: np.ndarray, threshold: float = 0.5
     return f"data:image/png;base64,{b64}"
 
 
-def predict_image(image_bytes: bytes, with_heatmap: bool = True) -> dict:
+def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
+                  with_heatmap: bool = True) -> dict:
     """
     Ham görüntü baytlarını alır; tahmin + (isteğe bağlı) Grad-CAM overlay döndürür.
     """
-    model = load_model()
+    model, temperature = load_model(model_name)
 
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     tensor = _transform(img).unsqueeze(0).to(DEVICE)  # (1, 3, 224, 224)
@@ -158,14 +172,14 @@ def predict_image(image_bytes: bytes, with_heatmap: bool = True) -> dict:
         # Grad-CAM için önce tahmini almalıyız (gradyan gerekir)
         # Kalibrasyon: logit'leri T'ye bölerek güven yüzdesini dürüstleştir
         with torch.no_grad():
-            probs0 = F.softmax(model(tensor) / TEMPERATURE, dim=1).squeeze(0)
+            probs0 = F.softmax(model(tensor) / temperature, dim=1).squeeze(0)
         pred_idx = int(torch.argmax(probs0).item())
         cam, _ = _compute_gradcam(model, tensor, pred_idx)
         heatmap = _make_overlay(img, cam)
         probs = probs0
     else:
         with torch.no_grad():
-            probs = F.softmax(model(tensor) / TEMPERATURE, dim=1).squeeze(0)
+            probs = F.softmax(model(tensor) / temperature, dim=1).squeeze(0)
         pred_idx = int(torch.argmax(probs).item())
         heatmap = None
 
@@ -177,6 +191,7 @@ def predict_image(image_bytes: bytes, with_heatmap: bool = True) -> dict:
     uncertain = UNCERTAIN_LOW <= p_tumor <= UNCERTAIN_HIGH
 
     result = {
+        "model": model_name,
         "prediction": CLASS_NAMES[pred_idx],
         "tumor_probability": round(p_tumor, 4),
         "healthy_probability": round(p_healthy, 4),

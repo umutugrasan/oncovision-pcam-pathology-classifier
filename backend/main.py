@@ -4,10 +4,10 @@ PCam Patoloji Sınıflandırma API'si (FastAPI).
 NOT: Bu araç ARAŞTIRMA/EĞİTİM amaçlıdır. Klinik tanı için kullanılamaz.
 Model yalnızca H&E boyalı lenf düğümü patch'leri (PCam) için anlamlıdır.
 """
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from inference import predict_image, load_model
+from inference import predict_image, load_model, available_models, MODEL_PATHS
 
 app = FastAPI(
     title="PCam Patoloji Sınıflandırma API",
@@ -30,7 +30,7 @@ MAX_BYTES = 10 * 1024 * 1024  # 10 MB
 
 @app.on_event("startup")
 def _warmup():
-    # Model ilk istekte değil, açılışta yüklensin (ilk tahmin gecikmesini önler)
+    # Varsayılan modeli açılışta yükle (ilk tahmin gecikmesini önler)
     load_model()
 
 
@@ -39,14 +39,22 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/models")
+def models_list():
+    """Kullanılabilir modelleri döndürür (frontend seçici için)."""
+    return {"models": available_models()}
+
+
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...), model: str = Form("resnet18")):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=400,
             detail=f"Desteklenmeyen dosya tipi: {file.content_type}. "
                    "PNG/JPG/TIFF yükleyin.",
         )
+    if model not in MODEL_PATHS:
+        raise HTTPException(status_code=400, detail=f"Bilinmeyen model: {model}")
 
     data = await file.read()
     if len(data) > MAX_BYTES:
@@ -55,7 +63,7 @@ async def predict(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Boş dosya.")
 
     try:
-        result = predict_image(data)
+        result = predict_image(data, model_name=model)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Tahmin hatası: {e}")
 

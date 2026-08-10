@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import YuklemeAlani from "../components/YuklemeAlani.jsx";
 import SonucKarti from "../components/SonucKarti.jsx";
 
 // Geliştirmede vite proxy '/api' -> localhost:8000'e yönlendirir.
 const API_URL = "/api/predict";
+const MODELS_URL = "/api/models";
 
 export default function Anasayfa() {
   const [file, setFile] = useState(null);
@@ -12,6 +13,21 @@ export default function Anasayfa() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [threshold, setThreshold] = useState(0.5); // karar eşiği (kanser deme sınırı)
+  const [models, setModels] = useState(["resnet18"]);
+  const [selectedModel, setSelectedModel] = useState("resnet18");
+
+  // Kullanılabilir modelleri backend'den çek
+  useEffect(() => {
+    fetch(MODELS_URL)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.models?.length) {
+          setModels(d.models);
+          setSelectedModel(d.models[0]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   function handleSelect(f) {
     if (!f) return;
@@ -36,6 +52,7 @@ export default function Anasayfa() {
     try {
       const form = new FormData();
       form.append("file", file);
+      form.append("model", selectedModel);
       const res = await fetch(API_URL, { method: "POST", body: form });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -59,6 +76,23 @@ export default function Anasayfa() {
       </header>
 
       <main className="card">
+        {!result && models.length > 1 && (
+          <div className="model-select">
+            <span className="model-select-label">Model:</span>
+            <div className="model-options">
+              {models.map((m) => (
+                <button
+                  key={m}
+                  className={`model-btn ${selectedModel === m ? "active" : ""}`}
+                  onClick={() => setSelectedModel(m)}
+                >
+                  {m.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <YuklemeAlani preview={preview} onSelect={handleSelect} />
 
         {file && <p className="filename">📎 {file.name}</p>}

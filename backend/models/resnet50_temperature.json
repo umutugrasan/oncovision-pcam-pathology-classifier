@@ -1,0 +1,6 @@
+{
+  "temperature": 1.0735,
+  "n_samples": 8000,
+  "ece_before": 0.0101,
+  "ece_after": 0.0065
+}

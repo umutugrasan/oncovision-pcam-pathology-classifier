@@ -41,6 +41,7 @@ export default function SonucKarti({ result, threshold = 0.5 }) {
       <div className="score-detail">
         Sağlıklı: {Math.round(result.healthy_probability * 100)}% · Karar eşiği:
         %{thrPct}
+        {result.model && ` · Model: ${result.model.toUpperCase()}`}
       </div>
 
       {result.heatmap && (

@@ -2,9 +2,8 @@
 data/
 *.h5
 
-# --- Büyük/gereksiz model ---
-models/resnet50_pcam_best.pth
-backend/models/resnet50_pcam_best.pth
+# --- Kökteki model kopyaları (eğitim çıktısı; uygulama backend/models/'i kullanır) ---
+/models/
 
 # --- Dışa aktarılmış test görselleri ---
 test_patches/

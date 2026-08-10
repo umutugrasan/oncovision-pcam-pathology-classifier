@@ -11,6 +11,7 @@ Calistirma (proje kokunde, backend imajiyla):
   docker run --rm -v "<proje>:/work" -w /work pcam_project-backend \
     sh -c "pip install -q h5py && python calibrate.py"
 """
+import sys
 import json
 
 import h5py
@@ -24,10 +25,13 @@ from PIL import Image
 DEVICE = torch.device("cpu")
 VAL_X = "data/camelyonpatch_level_2_split_valid_x.h5"
 VAL_Y = "data/camelyonpatch_level_2_split_valid_y.h5"
-MODEL_PATH = "backend/models/resnet18_pcam_best.pth"
-OUT_PATH = "backend/models/temperature.json"
 MAX_SAMPLES = 8000   # kalibrasyon icin fazlasiyla yeterli, hiz icin alt kume
 BATCH = 64
+
+# Komut satirindan model adi (varsayilan resnet18):  python calibrate.py resnet50
+MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else "resnet18"
+MODEL_PATH = f"backend/models/{MODEL_NAME}_pcam_best.pth"
+OUT_PATH = f"backend/models/{MODEL_NAME}_temperature.json"
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -38,7 +42,12 @@ transform = transforms.Compose([
 
 
 def build_model():
-    m = models.resnet18(weights=None)
+    if MODEL_NAME == "resnet18":
+        m = models.resnet18(weights=None)
+    elif MODEL_NAME == "resnet50":
+        m = models.resnet50(weights=None)
+    else:
+        raise ValueError(f"Bilinmeyen model: {MODEL_NAME}")
     m.fc = nn.Linear(m.fc.in_features, 2)
     return m
 

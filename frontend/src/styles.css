@@ -138,6 +138,41 @@ body {
   padding: 24px;
 }
 
+.model-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.model-select-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.model-options {
+  display: flex;
+  gap: 8px;
+}
+
+.model-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.model-btn.active {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--text);
+}
+
 .dropzone {
   border: 2px dashed var(--border);
   border-radius: 12px;
