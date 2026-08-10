@@ -1,3 +1,13 @@
+---
+title: PCam Pathology Classifier
+emoji: 🔬
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🔬 PCam Patoloji Sınıflandırıcı
 
 PatchCamelyon (PCam) veri seti üzerinde **transfer learning + fine-tuning** ile

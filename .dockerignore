@@ -1,0 +1,20 @@
+# Kök Docker build context'i küçük tut (özellikle data/ 8.5GB dışarıda kalsın).
+# NOT: backend/models/ ve frontend/public/ (örnekler) imaja GİRMELİ, onları dışlama.
+data/
+*.h5
+/models/
+# Büyük model ağırlıkları imaja build sırasında GitHub'dan indirilir (Dockerfile)
+backend/models/*.pth
+test_patches/
+docs/
+results/
+yeni resnet18 sonuçları/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+.git/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/

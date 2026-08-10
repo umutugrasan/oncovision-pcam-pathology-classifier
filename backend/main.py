@@ -4,8 +4,12 @@ PCam Patoloji Sınıflandırma API'si (FastAPI).
 NOT: Bu araç ARAŞTIRMA/EĞİTİM amaçlıdır. Klinik tanı için kullanılamaz.
 Model yalnızca H&E boyalı lenf düğümü patch'leri (PCam) için anlamlıdır.
 """
+import os
+
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from inference import predict_image, load_model, available_models, MODEL_PATHS
 
@@ -73,3 +77,21 @@ async def predict(
 
     result["filename"] = file.filename
     return result
+
+
+# --- Statik frontend servisi (tek-servis deploy, örn. Hugging Face Spaces) ---
+# STATIC_DIR mevcutsa derlenmiş React arayüzü de bu backend'den servis edilir.
+# API rotaları yukarıda tanımlı olduğu için önce onlar eşleşir; alttaki catch-all
+# yalnızca statik dosyaları ve SPA yönlendirmesini (index.html) karşılar.
+STATIC_DIR = os.environ.get("STATIC_DIR", "static")
+if os.path.isdir(STATIC_DIR):
+    assets_dir = os.path.join(STATIC_DIR, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    def serve_spa(full_path: str):
+        candidate = os.path.join(STATIC_DIR, full_path)
+        if full_path and os.path.isfile(candidate):
+            return FileResponse(candidate)
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))

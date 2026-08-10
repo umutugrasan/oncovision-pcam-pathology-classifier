@@ -3,8 +3,10 @@ import YuklemeAlani from "../components/YuklemeAlani.jsx";
 import SonucKarti from "../components/SonucKarti.jsx";
 
 // Geliştirmede vite proxy '/api' -> localhost:8000'e yönlendirir.
-const API_URL = "/api/predict";
-const MODELS_URL = "/api/models";
+// API tabanı: yerelde nginx/vite proxy için "/api", tek-servis (HF) derlemesinde ""
+const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
+const API_URL = `${API_BASE}/predict`;
+const MODELS_URL = `${API_BASE}/models`;
 
 // Arayüzde hazır örnek görseller (frontend/public/samples/)
 const SAMPLES = [
