@@ -1,0 +1,31 @@
+# --- Veri (8.5 GB, GitHub'a gitmez) ---
+data/
+*.h5
+
+# --- Büyük/gereksiz model ---
+models/resnet50_pcam_best.pth
+backend/models/resnet50_pcam_best.pth
+
+# --- Dışa aktarılmış test görselleri ---
+test_patches/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# --- Node / React ---
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
