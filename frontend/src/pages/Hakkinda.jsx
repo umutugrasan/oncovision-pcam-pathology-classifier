@@ -34,6 +34,17 @@ export default function Hakkinda() {
           </tbody>
         </table>
 
+        <h2>Güven skoru kalibrasyonu</h2>
+        <p>
+          Nöral ağların ham softmax çıktısı genelde <b>aşırı özgüvenlidir</b>;
+          model yanılırken bile %99 diyebilir. Bunu düzeltmek için{" "}
+          <b>temperature scaling</b> (Guo et al., 2017) uyguladık: validation
+          setinde en iyi sıcaklık <b>T = 1.43</b> bulundu ve logit'ler bu
+          değere bölünerek güven yüzdesi gerçekçi hale getirildi. Kalibrasyon
+          hatası (ECE) <b>0.0445 → 0.0138</b>'e düştü. Bu işlem tahminleri ve
+          doğruluğu değiştirmez; yalnızca gösterilen yüzdeyi güvenilir kılar.
+        </p>
+
         <div className="warn-box">
           <strong>⚠️ Kısıt:</strong> Recall ~0.78 olduğundan model, gerçek
           kanserli vakaların yaklaşık <b>%22'sini kaçırabilir</b>. Bu nedenle

@@ -6,6 +6,8 @@ val_transforms ile BİREBİR aynıdır. Farklı olursa model saçmalar.
 Kaynak: dataset.py -> val_transforms
 """
 import io
+import os
+import json
 import base64
 
 import numpy as np
@@ -19,7 +21,20 @@ from PIL import Image, ImageDraw
 # Eğitimde: 0 = Sağlıklı, 1 = Kanserli
 CLASS_NAMES = {0: "Saglikli", 1: "Kanserli"}
 MODEL_PATH = "models/resnet18_pcam_best.pth"
+TEMP_PATH = "models/temperature.json"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def _load_temperature():
+    """Kalibrasyon sicakligini (temperature scaling) yukler. Yoksa 1.0 (etkisiz)."""
+    try:
+        with open(TEMP_PATH) as f:
+            return float(json.load(f)["temperature"])
+    except (FileNotFoundError, KeyError, ValueError):
+        return 1.0
+
+
+TEMPERATURE = _load_temperature()
 
 # Eğitimdeki val_transforms ile birebir aynı (dataset.py)
 _transform = transforms.Compose([
@@ -137,15 +152,16 @@ def predict_image(image_bytes: bytes, with_heatmap: bool = True) -> dict:
 
     if with_heatmap:
         # Grad-CAM için önce tahmini almalıyız (gradyan gerekir)
+        # Kalibrasyon: logit'leri T'ye bölerek güven yüzdesini dürüstleştir
         with torch.no_grad():
-            probs0 = F.softmax(model(tensor), dim=1).squeeze(0)
+            probs0 = F.softmax(model(tensor) / TEMPERATURE, dim=1).squeeze(0)
         pred_idx = int(torch.argmax(probs0).item())
         cam, _ = _compute_gradcam(model, tensor, pred_idx)
         heatmap = _make_overlay(img, cam)
         probs = probs0
     else:
         with torch.no_grad():
-            probs = F.softmax(model(tensor), dim=1).squeeze(0)
+            probs = F.softmax(model(tensor) / TEMPERATURE, dim=1).squeeze(0)
         pred_idx = int(torch.argmax(probs).item())
         heatmap = None
 

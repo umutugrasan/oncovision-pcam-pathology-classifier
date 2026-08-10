@@ -11,6 +11,17 @@ bir olasılık skoru döndürür.
 
 ---
 
+## 🖥️ Ekran Görüntüleri
+
+Model tahmini, olasılık skoru ve **Grad-CAM** ısı haritası (modelin odaklandığı
+bölge yeşil kare içinde) ile:
+
+| Kanserli tahmini | Sağlıklı tahmini |
+|---|---|
+| ![Kanserli](docs/ekran-kanserli.png) | ![Sağlıklı](docs/ekran-saglikli.png) |
+
+---
+
 ## 🩺 Model ne yapıyor?
 
 PCam, **Camelyon16** veri setinden türetilmiştir. Görüntüler meme kanseri
