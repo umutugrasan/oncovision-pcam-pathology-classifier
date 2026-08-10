@@ -400,6 +400,16 @@ body {
   color: var(--muted);
 }
 
+.ood-warning {
+  margin-bottom: 14px;
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 .result-label {
   font-size: 1.25rem;
   font-weight: 700;

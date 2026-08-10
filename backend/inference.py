@@ -31,7 +31,54 @@ DEFAULT_MODEL = "resnet18"
 # Belirsizlik bandı: tümör olasılığı bu aralıktaysa "Belirsiz" (kararsız) sayılır
 UNCERTAIN_LOW = 0.40
 UNCERTAIN_HIGH = 0.60
+
+# OOD (uygunluk) eşikleri — gerçek PCam patch'lerinden kalibre edildi.
+# Renkli pikseller arasında magenta (H&E) oranı bu eşiğin altındaysa görsel
+# H&E lenf düğümü patch'ine benzemiyordur (ör. doğal foto / ekran görüntüsü).
+OOD_COLORFUL_MIN = 0.05   # renk profili değerlendirmek için gereken min renkli piksel oranı
+OOD_MAGENTA_MIN = 0.25    # PCam'in p1'i ~0.26; altı = H&E dışı
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def assess_suitability(img: Image.Image) -> dict:
+    """
+    Görselin H&E boyalı PCam patch'ine benzeyip benzemediğini renk profiliyle
+    (heuristik) değerlendirir. Model dışı, ucuz bir OOD kontrolü.
+    """
+    small = img.convert("RGB")
+    if max(small.size) > 256:
+        small = small.resize((256, 256))
+    arr = np.asarray(small).astype(np.int16)
+    R, G, B = arr[..., 0], arr[..., 1], arr[..., 2]
+    mx = arr.max(-1)
+    mn = arr.min(-1)
+    sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1), 0.0)
+
+    colorful = sat > 0.15
+    colorful_frac = float(colorful.mean())
+
+    if colorful_frac >= OOD_COLORFUL_MIN:
+        magenta = (G < R - 8) & (G < B - 8)   # yeşil belirgin şekilde en düşük = H&E ailesi
+        hne_ratio = float(magenta[colorful].mean())
+        suitable = hne_ratio >= OOD_MAGENTA_MIN
+    else:
+        # Neredeyse tamamen soluk/beyaz: renk profili değerlendirilemez.
+        # Soluk PCam patch'leri geçerlidir; yanlış damga vurmamak için uygun say.
+        hne_ratio = None
+        suitable = True
+
+    reason = None
+    if not suitable:
+        reason = ("Görselin renk profili H&E boyamasına benzemiyor. Bu model "
+                  "yalnızca H&E boyalı lenf düğümü patch'leri (PCam) için geçerlidir; "
+                  "sonuç güvenilmez.")
+
+    return {
+        "suitable": suitable,
+        "reason": reason,
+        "hne_ratio": None if hne_ratio is None else round(hne_ratio, 3),
+    }
 
 
 def _load_temperature(model_name):
@@ -178,6 +225,10 @@ def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
     model, temperature = load_model(model_name)
 
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    # OOD: görsel H&E/PCam profiline benziyor mu?
+    suitability = assess_suitability(img)
+
     tensor = _transform(img).unsqueeze(0).to(DEVICE)  # (1, 3, 224, 224)
 
     # Kalibrasyon: logit'leri T'ye bölerek güven yüzdesini dürüstleştir
@@ -209,6 +260,7 @@ def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
         "confidence": round(max(p_tumor, p_healthy), 4),
         "uncertain": uncertain,
         "tta": tta,
+        "suitability": suitability,
     }
     if heatmap:
         result["heatmap"] = heatmap

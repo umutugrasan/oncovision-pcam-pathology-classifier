@@ -21,8 +21,16 @@ export default function SonucKarti({ result, threshold = 0.5, preview }) {
     ? "🔴 Kanserli (Metastaz)"
     : "🟢 Sağlıklı";
 
+  const unsuitable = result.suitability && result.suitability.suitable === false;
+
   return (
     <div className={`result ${stateClass}`}>
+      {unsuitable && (
+        <div className="ood-warning">
+          🚫 <strong>Bu görsel bu model için uygun değil.</strong>{" "}
+          {result.suitability.reason}
+        </div>
+      )}
       <div className="result-label">{label}</div>
 
       {isUncertain && (
