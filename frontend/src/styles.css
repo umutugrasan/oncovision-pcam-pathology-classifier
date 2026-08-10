@@ -216,6 +216,51 @@ body {
   word-break: break-all;
 }
 
+.samples {
+  margin-top: 16px;
+}
+
+.samples-title {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.samples-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sample-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sample-thumb:hover {
+  border-color: var(--accent);
+}
+
+.sample-thumb img {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  image-rendering: pixelated;
+}
+
+.sample-thumb span {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
 .tta-toggle {
   display: flex;
   align-items: center;

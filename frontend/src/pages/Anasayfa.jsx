@@ -6,6 +6,15 @@ import SonucKarti from "../components/SonucKarti.jsx";
 const API_URL = "/api/predict";
 const MODELS_URL = "/api/models";
 
+// Arayüzde hazır örnek görseller (frontend/public/samples/)
+const SAMPLES = [
+  { src: "/samples/ornek-kanserli-1.png", label: "Kanserli örnek" },
+  { src: "/samples/ornek-kanserli-2.png", label: "Kanserli örnek" },
+  { src: "/samples/ornek-saglikli-1.png", label: "Sağlıklı örnek" },
+  { src: "/samples/ornek-saglikli-2.png", label: "Sağlıklı örnek" },
+  { src: "/samples/ornek-belirsiz.png", label: "Sınırda örnek" },
+];
+
 export default function Anasayfa() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -45,14 +54,27 @@ export default function Anasayfa() {
     setError(null);
   }
 
-  async function analyze() {
-    if (!file) return;
+  // Örnek görseli indir, seç ve otomatik analiz et
+  async function loadSample(src, name) {
+    try {
+      const blob = await (await fetch(src)).blob();
+      const f = new File([blob], name, { type: "image/png" });
+      handleSelect(f);
+      analyze(f);
+    } catch {
+      setError("Örnek görsel yüklenemedi.");
+    }
+  }
+
+  async function analyze(fileArg) {
+    const theFile = fileArg || file;
+    if (!theFile) return;
     setLoading(true);
     setError(null);
     setResult(null);
     try {
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", theFile);
       form.append("model", selectedModel);
       form.append("tta", useTta);
       const res = await fetch(API_URL, { method: "POST", body: form });
@@ -112,8 +134,30 @@ export default function Anasayfa() {
           </label>
         )}
 
+        {!result && !file && (
+          <div className="samples">
+            <div className="samples-title">
+              Görselin yok mu? Hazır bir örnek dene:
+            </div>
+            <div className="samples-row">
+              {SAMPLES.map((s) => (
+                <button
+                  key={s.src}
+                  className="sample-thumb"
+                  onClick={() => loadSample(s.src, s.src.split("/").pop())}
+                  title={s.label}
+                  disabled={loading}
+                >
+                  <img src={s.src} alt={s.label} />
+                  <span>{s.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {!result && (
-          <button className="analyze-btn" onClick={analyze} disabled={!file || loading}>
+          <button className="analyze-btn" onClick={() => analyze()} disabled={!file || loading}>
             {loading ? "Analiz ediliyor…" : "Analiz Et"}
           </button>
         )}
