@@ -11,6 +11,7 @@ export default function Anasayfa() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [threshold, setThreshold] = useState(0.5); // karar eşiği (kanser deme sınırı)
 
   function handleSelect(f) {
     if (!f) return;
@@ -69,7 +70,29 @@ export default function Anasayfa() {
         )}
 
         {error && <div className="error">⚠️ {error}</div>}
-        {result && <SonucKarti result={result} />}
+        {result && <SonucKarti result={result} threshold={threshold} />}
+
+        {result && (
+          <div className="threshold-box">
+            <div className="threshold-row">
+              <span>Karar eşiği (kanser deme sınırı)</span>
+              <strong>{Math.round(threshold * 100)}%</strong>
+            </div>
+            <input
+              type="range"
+              min="0.3"
+              max="0.7"
+              step="0.05"
+              value={threshold}
+              onChange={(e) => setThreshold(parseFloat(e.target.value))}
+              className="threshold-slider"
+            />
+            <div className="threshold-hint">
+              ⬅ Düşük eşik: daha duyarlı, kanseri kaçırma azalır (recall ↑) ·
+              Yüksek eşik: daha temkinli, yanlış alarm azalır (precision ↑) ➡
+            </div>
+          </div>
+        )}
 
         {result && (
           <button className="analyze-btn secondary" onClick={yeniAnaliz}>

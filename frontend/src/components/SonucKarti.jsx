@@ -2,10 +2,14 @@
  * Tahmin sonucunu gösteren kart.
  * props: result -> backend'den dönen tahmin nesnesi
  */
-export default function SonucKarti({ result }) {
-  const isTumor = result.prediction === "Kanserli";
-  const isUncertain = result.uncertain;
-  const tumorPct = Math.round(result.tumor_probability * 100);
+export default function SonucKarti({ result, threshold = 0.5 }) {
+  const pTumor = result.tumor_probability;
+  const tumorPct = Math.round(pTumor * 100);
+  const thrPct = Math.round(threshold * 100);
+
+  // Karar ve belirsizlik artık kullanıcı eşiğine göre hesaplanır.
+  const isTumor = pTumor >= threshold;
+  const isUncertain = Math.abs(pTumor - threshold) <= 0.1;
 
   const stateClass = isUncertain ? "uncertain" : isTumor ? "tumor" : "healthy";
   const label = isUncertain
@@ -21,8 +25,8 @@ export default function SonucKarti({ result }) {
       {isUncertain && (
         <div className="uncertain-note">
           Model bu görselde karar sınırına çok yakın (tümör olasılığı ~%
-          {tumorPct}). Güvenilir bir tahmin için tek başına yeterli değildir;
-          uzman patolog incelemesi önerilir.
+          {tumorPct}, eşik %{thrPct}). Güvenilir bir tahmin için tek başına
+          yeterli değildir; uzman patolog incelemesi önerilir.
         </div>
       )}
       <div className="score-row">
@@ -31,10 +35,12 @@ export default function SonucKarti({ result }) {
       </div>
       <div className="bar">
         <div className="bar-fill" style={{ width: `${tumorPct}%` }} />
+        {/* karar eşiği işareti */}
+        <div className="bar-threshold" style={{ left: `${thrPct}%` }} />
       </div>
       <div className="score-detail">
-        Güven: {Math.round(result.confidence * 100)}% · Sağlıklı:{" "}
-        {Math.round(result.healthy_probability * 100)}%
+        Sağlıklı: {Math.round(result.healthy_probability * 100)}% · Karar eşiği:
+        %{thrPct}
       </div>
 
       {result.heatmap && (
