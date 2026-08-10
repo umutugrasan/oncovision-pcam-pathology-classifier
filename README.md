@@ -11,6 +11,19 @@ bir olasılık skoru döndürür.
 
 ---
 
+## ✨ Özellikler
+
+- **Tahmin + olasılık skoru** — sürükle-bırak ile görsel yükle, anında sonuç
+- **Grad-CAM ısı haritası** — modelin odaklandığı bölge (yeşil kare) + ayarlanabilir şeffaflık
+- **Güven kalibrasyonu (temperature scaling)** — dürüst güven yüzdesi (ECE ↓)
+- **Belirsizlik uyarısı** — karar sınırındaki vakalarda "Belirsiz, uzman incelemesi gerekli"
+- **Ayarlanabilir karar eşiği** — recall/precision dengesini slider ile canlı ayarla
+- **Model seçimi** — ResNet18 ↔ ResNet50 karşılaştırma
+- **Test-time augmentation (TTA)** — 4 varyant ortalaması ile daha kararlı tahmin
+- **Performans sayfası** — confusion matrix, ROC, precision-recall, reliability diyagramı
+
+---
+
 ## 🖥️ Ekran Görüntüleri
 
 Model tahmini, olasılık skoru ve **Grad-CAM** ısı haritası (modelin odaklandığı
