@@ -200,6 +200,40 @@ body {
   cursor: not-allowed;
 }
 
+.analyze-btn.secondary {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.heatmap-box {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.heatmap-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.heatmap-img {
+  width: 100%;
+  max-width: 260px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  image-rendering: pixelated;
+}
+
+.heatmap-hint {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .error {
   margin-top: 16px;
   padding: 12px;

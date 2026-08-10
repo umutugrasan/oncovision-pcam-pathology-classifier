@@ -22,6 +22,19 @@ export default function SonucKarti({ result }) {
         Güven: {Math.round(result.confidence * 100)}% · Sağlıklı:{" "}
         {Math.round(result.healthy_probability * 100)}%
       </div>
+
+      {result.heatmap && (
+        <div className="heatmap-box">
+          <div className="heatmap-title">
+            🔥 Modelin odaklandığı bölge (Grad-CAM)
+          </div>
+          <img src={result.heatmap} alt="ısı haritası" className="heatmap-img" />
+          <div className="heatmap-hint">
+            Kırmızı = modelin en çok baktığı alan · yeşil kare = en yoğun bölge.
+            Bu bir dikkat haritasıdır, kesin tümör sınırı değildir.
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,13 @@ export default function Anasayfa() {
     setPreview(URL.createObjectURL(f));
   }
 
+  function yeniAnaliz() {
+    setFile(null);
+    setPreview(null);
+    setResult(null);
+    setError(null);
+  }
+
   async function analyze() {
     if (!file) return;
     setLoading(true);
@@ -55,12 +62,20 @@ export default function Anasayfa() {
 
         {file && <p className="filename">📎 {file.name}</p>}
 
-        <button className="analyze-btn" onClick={analyze} disabled={!file || loading}>
-          {loading ? "Analiz ediliyor…" : "Analiz Et"}
-        </button>
+        {!result && (
+          <button className="analyze-btn" onClick={analyze} disabled={!file || loading}>
+            {loading ? "Analiz ediliyor…" : "Analiz Et"}
+          </button>
+        )}
 
         {error && <div className="error">⚠️ {error}</div>}
         {result && <SonucKarti result={result} />}
+
+        {result && (
+          <button className="analyze-btn secondary" onClick={yeniAnaliz}>
+            ↺ Yeni Analiz
+          </button>
+        )}
       </main>
 
       <footer className="disclaimer">
