@@ -3,9 +3,20 @@
  * props: result -> backend'den dönen tahmin nesnesi
  */
 import { useState } from "react";
+import { raporIndir } from "../rapor.js";
 
 export default function SonucKarti({ result, threshold = 0.5, preview }) {
   const [hmOpacity, setHmOpacity] = useState(0.6); // ısı haritası opaklığı
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  async function indir() {
+    setPdfLoading(true);
+    try {
+      await raporIndir({ result, preview, threshold, hmOpacity });
+    } finally {
+      setPdfLoading(false);
+    }
+  }
   const pTumor = result.tumor_probability;
   const tumorPct = Math.round(pTumor * 100);
   const thrPct = Math.round(threshold * 100);
@@ -88,6 +99,10 @@ export default function SonucKarti({ result, threshold = 0.5, preview }) {
           </div>
         </div>
       )}
+
+      <button className="pdf-btn" onClick={indir} disabled={pdfLoading}>
+        {pdfLoading ? "Rapor hazırlanıyor…" : "📄 PDF Rapor İndir"}
+      </button>
     </div>
   );
 }

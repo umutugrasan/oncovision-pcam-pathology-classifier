@@ -362,6 +362,29 @@ body {
   line-height: 1.5;
 }
 
+.pdf-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.pdf-btn:hover {
+  border-color: var(--accent);
+}
+
+.pdf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .error {
   margin-top: 16px;
   padding: 12px;
