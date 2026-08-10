@@ -158,36 +158,47 @@ def _make_overlay(orig_img: Image.Image, cam: np.ndarray, threshold: float = 0.5
     return f"data:image/png;base64,{b64}"
 
 
+def _tta_views(tensor):
+    """Görselin 4 varyantı: orijinal + yatay/dikey/180° çevrilmiş.
+    Eğitimdeki augmentation (flip + rotation) ile uyumlu, güvenli dönüşümler."""
+    return torch.cat([
+        tensor,                             # orijinal
+        torch.flip(tensor, dims=[3]),       # yatay çevir
+        torch.flip(tensor, dims=[2]),       # dikey çevir
+        torch.flip(tensor, dims=[2, 3]),    # 180° döndür
+    ], dim=0)
+
+
 def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
-                  with_heatmap: bool = True) -> dict:
+                  with_heatmap: bool = True, tta: bool = False) -> dict:
     """
     Ham görüntü baytlarını alır; tahmin + (isteğe bağlı) Grad-CAM overlay döndürür.
+    tta=True ise 4 varyantın olasılıkları ortalanarak daha kararlı tahmin üretilir.
     """
     model, temperature = load_model(model_name)
 
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     tensor = _transform(img).unsqueeze(0).to(DEVICE)  # (1, 3, 224, 224)
 
+    # Kalibrasyon: logit'leri T'ye bölerek güven yüzdesini dürüstleştir
+    with torch.no_grad():
+        if tta:
+            probs_each = F.softmax(model(_tta_views(tensor)) / temperature, dim=1)
+            probs = probs_each.mean(dim=0)  # 4 varyantın ortalaması
+        else:
+            probs = F.softmax(model(tensor) / temperature, dim=1).squeeze(0)
+    pred_idx = int(torch.argmax(probs).item())
+
+    # Grad-CAM her zaman orijinal yönelim üzerinden hesaplanır
+    heatmap = None
     if with_heatmap:
-        # Grad-CAM için önce tahmini almalıyız (gradyan gerekir)
-        # Kalibrasyon: logit'leri T'ye bölerek güven yüzdesini dürüstleştir
-        with torch.no_grad():
-            probs0 = F.softmax(model(tensor) / temperature, dim=1).squeeze(0)
-        pred_idx = int(torch.argmax(probs0).item())
         cam, _ = _compute_gradcam(model, tensor, pred_idx)
         heatmap = _make_overlay(img, cam)
-        probs = probs0
-    else:
-        with torch.no_grad():
-            probs = F.softmax(model(tensor) / temperature, dim=1).squeeze(0)
-        pred_idx = int(torch.argmax(probs).item())
-        heatmap = None
 
     p_healthy = float(probs[0].item())
     p_tumor = float(probs[1].item())
 
     # Belirsizlik: tümör olasılığı karar sınırına (0.5) yakınsa model kararsızdır.
-    # Böyle vakalarda net karar yerine "Belirsiz" deyip uzman incelemesine yönlendiririz.
     uncertain = UNCERTAIN_LOW <= p_tumor <= UNCERTAIN_HIGH
 
     result = {
@@ -197,6 +208,7 @@ def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
         "healthy_probability": round(p_healthy, 4),
         "confidence": round(max(p_tumor, p_healthy), 4),
         "uncertain": uncertain,
+        "tta": tta,
     }
     if heatmap:
         result["heatmap"] = heatmap

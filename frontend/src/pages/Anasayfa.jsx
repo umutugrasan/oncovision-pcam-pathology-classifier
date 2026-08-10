@@ -15,6 +15,7 @@ export default function Anasayfa() {
   const [threshold, setThreshold] = useState(0.5); // karar eşiği (kanser deme sınırı)
   const [models, setModels] = useState(["resnet18"]);
   const [selectedModel, setSelectedModel] = useState("resnet18");
+  const [useTta, setUseTta] = useState(false); // test-time augmentation
 
   // Kullanılabilir modelleri backend'den çek
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function Anasayfa() {
       const form = new FormData();
       form.append("file", file);
       form.append("model", selectedModel);
+      form.append("tta", useTta);
       const res = await fetch(API_URL, { method: "POST", body: form });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -96,6 +98,19 @@ export default function Anasayfa() {
         <YuklemeAlani preview={preview} onSelect={handleSelect} />
 
         {file && <p className="filename">📎 {file.name}</p>}
+
+        {!result && (
+          <label className="tta-toggle">
+            <input
+              type="checkbox"
+              checked={useTta}
+              onChange={(e) => setUseTta(e.target.checked)}
+            />
+            <span>
+              Test-time augmentation (4 yönde ortalama — daha kararlı, biraz yavaş)
+            </span>
+          </label>
+        )}
 
         {!result && (
           <button className="analyze-btn" onClick={analyze} disabled={!file || loading}>

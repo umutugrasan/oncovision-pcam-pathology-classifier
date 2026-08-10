@@ -42,6 +42,7 @@ export default function SonucKarti({ result, threshold = 0.5 }) {
         Sağlıklı: {Math.round(result.healthy_probability * 100)}% · Karar eşiği:
         %{thrPct}
         {result.model && ` · Model: ${result.model.toUpperCase()}`}
+        {result.tta && " · TTA açık"}
       </div>
 
       {result.heatmap && (

@@ -46,7 +46,11 @@ def models_list():
 
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...), model: str = Form("resnet18")):
+async def predict(
+    file: UploadFile = File(...),
+    model: str = Form("resnet18"),
+    tta: bool = Form(False),
+):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=400,
@@ -63,7 +67,7 @@ async def predict(file: UploadFile = File(...), model: str = Form("resnet18")):
         raise HTTPException(status_code=400, detail="Boş dosya.")
 
     try:
-        result = predict_image(data, model_name=model)
+        result = predict_image(data, model_name=model, tta=tta)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Tahmin hatası: {e}")
 

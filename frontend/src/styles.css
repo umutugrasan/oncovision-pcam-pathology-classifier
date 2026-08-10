@@ -216,6 +216,21 @@ body {
   word-break: break-all;
 }
 
+.tta-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tta-toggle input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 .analyze-btn {
   width: 100%;
   margin-top: 18px;
