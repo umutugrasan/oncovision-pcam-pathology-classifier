@@ -20,6 +20,9 @@ bir olasılık skoru döndürür.
 - **Ayarlanabilir karar eşiği** — recall/precision dengesini slider ile canlı ayarla
 - **Model seçimi** — ResNet18 ↔ ResNet50 karşılaştırma
 - **Test-time augmentation (TTA)** — 4 varyant ortalaması ile daha kararlı tahmin
+- **OOD kontrolü** — H&E/PCam profiline benzemeyen görsellerde "bu görsel uygun değil" uyarısı
+- **PDF rapor** — her analiz için indirilebilir çıktı (görsel + Grad-CAM + skor + tarih + uyarı)
+- **Hazır örnek galeri** — tıklayınca otomatik analiz edilen örnek görseller
 - **Performans sayfası** — confusion matrix, ROC, precision-recall, reliability diyagramı
 
 ---
