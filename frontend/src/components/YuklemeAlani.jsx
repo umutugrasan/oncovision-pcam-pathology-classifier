@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
+import { useT } from "../i18n.jsx";
 
 /**
  * Sürükle-bırak / tıkla-seç görsel yükleme alanı.
- * props:
- *   preview  -> önizleme URL'i (string | null)
- *   onSelect -> seçilen File'ı üst bileşene bildirir
+ * analyzing=true iken görselin üzerinde "scanline" tarama animasyonu gösterilir.
  */
-export default function YuklemeAlani({ preview, onSelect }) {
+export default function YuklemeAlani({ preview, onSelect, analyzing = false }) {
+  const t = useT();
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -18,8 +18,8 @@ export default function YuklemeAlani({ preview, onSelect }) {
 
   return (
     <div
-      className={`dropzone ${dragOver ? "over" : ""}`}
-      onClick={() => inputRef.current?.click()}
+      className={`dropzone ${dragOver ? "over" : ""} ${preview ? "has-image" : ""}`}
+      onClick={() => !analyzing && inputRef.current?.click()}
       onDragOver={(e) => {
         e.preventDefault();
         setDragOver(true);
@@ -28,12 +28,21 @@ export default function YuklemeAlani({ preview, onSelect }) {
       onDrop={onDrop}
     >
       {preview ? (
-        <img src={preview} alt="önizleme" className="preview" />
+        <>
+          <img src={preview} alt="önizleme" className="preview" />
+          {analyzing && (
+            <div className="scan-overlay">
+              <div className="scanline" />
+              <div className="scan-spinner" />
+              <span className="scan-text">{t.tool.scanText}</span>
+            </div>
+          )}
+        </>
       ) : (
         <div className="dz-empty">
-          <div className="dz-icon">🖼️</div>
-          <p>Patoloji görselini sürükle-bırak</p>
-          <p className="dz-hint">veya tıklayıp seç (PNG / JPG / TIFF)</p>
+          <div className="dz-icon">🔬</div>
+          <p>{t.tool.dropTitle}</p>
+          <p className="dz-hint">{t.tool.dropHint}</p>
         </div>
       )}
       <input

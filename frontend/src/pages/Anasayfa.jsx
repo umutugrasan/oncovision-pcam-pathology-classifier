@@ -1,34 +1,33 @@
 import { useState, useEffect } from "react";
 import YuklemeAlani from "../components/YuklemeAlani.jsx";
 import SonucKarti from "../components/SonucKarti.jsx";
+import { useT } from "../i18n.jsx";
 
-// Geliştirmede vite proxy '/api' -> localhost:8000'e yönlendirir.
-// API tabanı: yerelde nginx/vite proxy için "/api", tek-servis (HF) derlemesinde ""
+// API tabanı: yerelde nginx/vite proxy için "/api", tek-servis derlemesinde ""
 const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
 const API_URL = `${API_BASE}/predict`;
 const MODELS_URL = `${API_BASE}/models`;
 
-// Arayüzde hazır örnek görseller (frontend/public/samples/)
-const SAMPLES = [
-  { src: "/samples/ornek-kanserli-1.png", label: "Kanserli örnek" },
-  { src: "/samples/ornek-kanserli-2.png", label: "Kanserli örnek" },
-  { src: "/samples/ornek-saglikli-1.png", label: "Sağlıklı örnek" },
-  { src: "/samples/ornek-saglikli-2.png", label: "Sağlıklı örnek" },
-  { src: "/samples/ornek-belirsiz.png", label: "Sınırda örnek" },
-];
-
 export default function Anasayfa() {
+  const t = useT();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [threshold, setThreshold] = useState(0.5); // karar eşiği (kanser deme sınırı)
+  const [threshold, setThreshold] = useState(0.5);
   const [models, setModels] = useState(["resnet18"]);
   const [selectedModel, setSelectedModel] = useState("resnet18");
-  const [useTta, setUseTta] = useState(false); // test-time augmentation
+  const [useTta, setUseTta] = useState(false);
 
-  // Kullanılabilir modelleri backend'den çek
+  const SAMPLES = [
+    { src: "/samples/ornek-kanserli-1.png", label: t.tool.sampleTumor },
+    { src: "/samples/ornek-kanserli-2.png", label: t.tool.sampleTumor },
+    { src: "/samples/ornek-saglikli-1.png", label: t.tool.sampleHealthy },
+    { src: "/samples/ornek-saglikli-2.png", label: t.tool.sampleHealthy },
+    { src: "/samples/ornek-belirsiz.png", label: t.tool.sampleBorderline },
+  ];
+
   useEffect(() => {
     fetch(MODELS_URL)
       .then((r) => r.json())
@@ -56,7 +55,6 @@ export default function Anasayfa() {
     setError(null);
   }
 
-  // Örnek görseli indir, seç ve otomatik analiz et
   async function loadSample(src, name) {
     try {
       const blob = await (await fetch(src)).blob();
@@ -94,23 +92,35 @@ export default function Anasayfa() {
 
   return (
     <div className="page">
-      <header className="header">
-        <h1>Patoloji Görseli Analizi</h1>
-        <p className="subtitle">
-          ResNet18 · Lenf düğümünde metastatik meme kanseri tespiti
-        </p>
-      </header>
+      <section className="hero">
+        <div className="hero-text">
+          <span className="hero-badge">
+            <span className="hero-dot" aria-hidden /> {t.hero.badge}
+          </span>
+          <h1>
+            {t.hero.title1}
+            <br />
+            {t.hero.title2}
+          </h1>
+          <p className="hero-desc">{t.hero.desc}</p>
+        </div>
+        <div className="hero-art">
+          <div className="hero-art-circle" aria-hidden />
+          <img src="/hero-ribbon.png" alt="Meme kanseri farkındalık kurdelesi" />
+        </div>
+      </section>
 
-      <main className="card">
-        {!result && models.length > 1 && (
+      <main className="card tool-card">
+        {models.length > 1 && (
           <div className="model-select">
-            <span className="model-select-label">Model:</span>
+            <span className="model-select-label">{t.tool.model}</span>
             <div className="model-options">
               {models.map((m) => (
                 <button
                   key={m}
                   className={`model-btn ${selectedModel === m ? "active" : ""}`}
                   onClick={() => setSelectedModel(m)}
+                  disabled={loading}
                 >
                   {m.toUpperCase()}
                 </button>
@@ -119,28 +129,17 @@ export default function Anasayfa() {
           </div>
         )}
 
-        <YuklemeAlani preview={preview} onSelect={handleSelect} />
+        <YuklemeAlani
+          preview={preview}
+          onSelect={handleSelect}
+          analyzing={loading}
+        />
 
         {file && <p className="filename">📎 {file.name}</p>}
 
-        {!result && (
-          <label className="tta-toggle">
-            <input
-              type="checkbox"
-              checked={useTta}
-              onChange={(e) => setUseTta(e.target.checked)}
-            />
-            <span>
-              Test-time augmentation (4 yönde ortalama — daha kararlı, biraz yavaş)
-            </span>
-          </label>
-        )}
-
         {!result && !file && (
           <div className="samples">
-            <div className="samples-title">
-              Görselin yok mu? Hazır bir örnek dene:
-            </div>
+            <div className="samples-title">{t.tool.samplesTitle}</div>
             <div className="samples-row">
               {SAMPLES.map((s) => (
                 <button
@@ -158,9 +157,20 @@ export default function Anasayfa() {
           </div>
         )}
 
+        {!result && !loading && (
+          <label className="tta-toggle">
+            <input
+              type="checkbox"
+              checked={useTta}
+              onChange={(e) => setUseTta(e.target.checked)}
+            />
+            <span>{t.tool.tta}</span>
+          </label>
+        )}
+
         {!result && (
           <button className="analyze-btn" onClick={() => analyze()} disabled={!file || loading}>
-            {loading ? "Analiz ediliyor…" : "Analiz Et"}
+            {loading ? t.tool.analyzing : t.tool.analyze}
           </button>
         )}
 
@@ -172,7 +182,7 @@ export default function Anasayfa() {
         {result && (
           <div className="threshold-box">
             <div className="threshold-row">
-              <span>Karar eşiği (kanser deme sınırı)</span>
+              <span>{t.threshold.label}</span>
               <strong>{Math.round(threshold * 100)}%</strong>
             </div>
             <input
@@ -184,26 +194,20 @@ export default function Anasayfa() {
               onChange={(e) => setThreshold(parseFloat(e.target.value))}
               className="threshold-slider"
             />
-            <div className="threshold-hint">
-              ⬅ Düşük eşik: daha duyarlı, kanseri kaçırma azalır (recall ↑) ·
-              Yüksek eşik: daha temkinli, yanlış alarm azalır (precision ↑) ➡
-            </div>
+            <div className="threshold-hint">{t.threshold.hint}</div>
           </div>
         )}
 
         {result && (
           <button className="analyze-btn secondary" onClick={yeniAnaliz}>
-            ↺ Yeni Analiz
+            {t.tool.newAnalysis}
           </button>
         )}
       </main>
 
       <footer className="disclaimer">
-        <strong>⚠️ Yasal Uyarı:</strong> Bu araç yalnızca <b>araştırma ve
-        eğitim</b> amaçlıdır ve <b>klinik tanı için kullanılamaz</b>. Model
-        sadece H&amp;E boyalı lenf düğümü patch'leri (PCam) için anlamlıdır;
-        başka doku/organ görsellerinde sonuçlar geçersizdir. Nihai tanı her
-        zaman uzman patolog tarafından konulmalıdır.
+        <strong>{t.disclaimer.strong}</strong>
+        {t.disclaimer.text}
       </footer>
     </div>
   );

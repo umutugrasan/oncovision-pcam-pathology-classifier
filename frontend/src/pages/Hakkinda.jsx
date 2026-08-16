@@ -1,56 +1,39 @@
+import { useT } from "../i18n.jsx";
+
 export default function Hakkinda() {
+  const t = useT();
   return (
     <div className="page">
       <header className="header">
-        <h1>Hakkında</h1>
-        <p className="subtitle">Model, veri seti ve performans bilgisi</p>
+        <h1>{t.about.title}</h1>
+        <p className="subtitle">{t.about.subtitle}</p>
       </header>
 
       <main className="card prose">
-        <h2>Model ne yapıyor?</h2>
-        <p>
-          Bu araç, <b>PatchCamelyon (PCam)</b> veri seti üzerinde{" "}
-          <b>transfer learning + fine-tuning</b> ile eğitilmiş bir{" "}
-          <b>ResNet18</b> modelini kullanır. PCam, Camelyon16 veri setinden
-          türetilmiştir; görüntüler meme kanseri hastalarının <b>lenf düğümü</b>{" "}
-          kesitleridir (H&amp;E boyalı). Model, bir patch'in merkez dokusunda{" "}
-          <b>metastatik meme kanseri</b> olup olmadığını sınıflandırır.
-        </p>
+        <h2>{t.about.h2model}</h2>
+        <p>{t.about.pModel}</p>
 
-        <h2>Teknik detay</h2>
+        <h2>{t.about.h2tech}</h2>
         <ul>
-          <li>Girdi: 96×96 RGB patch → Resize(224) → ImageNet normalizasyonu</li>
-          <li>Çıktı: 2 sınıflı softmax (0 = Sağlıklı, 1 = Kanserli)</li>
-          <li>Fine-tuning: layer3 + layer4 açık, Adam (lr=1e-4)</li>
+          <li>{t.about.tech1}</li>
+          <li>{t.about.tech2}</li>
+          <li>{t.about.tech3}</li>
         </ul>
 
-        <h2>Performans (ResNet18, final)</h2>
+        <h2>{t.about.h2perf}</h2>
         <table className="metrics">
           <tbody>
-            <tr><td>Test Doğruluğu</td><td>%87.15</td></tr>
+            <tr><td>{t.perf.accuracy}</td><td>%87.15</td></tr>
             <tr><td>Precision</td><td>0.9495</td></tr>
             <tr><td>Recall</td><td>0.7846</td></tr>
             <tr><td>F1-Score</td><td>0.8592</td></tr>
           </tbody>
         </table>
 
-        <h2>Güven skoru kalibrasyonu</h2>
-        <p>
-          Nöral ağların ham softmax çıktısı genelde <b>aşırı özgüvenlidir</b>;
-          model yanılırken bile %99 diyebilir. Bunu düzeltmek için{" "}
-          <b>temperature scaling</b> (Guo et al., 2017) uyguladık: validation
-          setinde en iyi sıcaklık <b>T = 1.43</b> bulundu ve logit'ler bu
-          değere bölünerek güven yüzdesi gerçekçi hale getirildi. Kalibrasyon
-          hatası (ECE) <b>0.0445 → 0.0138</b>'e düştü. Bu işlem tahminleri ve
-          doğruluğu değiştirmez; yalnızca gösterilen yüzdeyi güvenilir kılar.
-        </p>
+        <h2>{t.about.h2calib}</h2>
+        <p>{t.about.pCalib}</p>
 
-        <div className="warn-box">
-          <strong>⚠️ Kısıt:</strong> Recall ~0.78 olduğundan model, gerçek
-          kanserli vakaların yaklaşık <b>%22'sini kaçırabilir</b>. Bu nedenle
-          araç <b>klinik tanı için uygun değildir</b> ve yalnızca araştırma /
-          eğitim amaçlıdır.
-        </div>
+        <div className="warn-box">{t.about.warn}</div>
       </main>
     </div>
   );

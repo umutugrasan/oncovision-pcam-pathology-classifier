@@ -28,3 +28,6 @@ frontend/.vite/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Video kayitlari
+*.mp4
