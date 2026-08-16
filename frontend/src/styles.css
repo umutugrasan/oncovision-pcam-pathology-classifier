@@ -376,6 +376,11 @@ body {
 .landing-top { position: relative; z-index: 3; display: flex; align-items: flex-start; justify-content: space-between; }
 .landing-logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.01em; }
 .landing-logo-img { height: 64px; width: auto; display: block; background: #fff; padding: 8px 14px; border-radius: 16px; box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.5); }
+.landing-brand {
+  font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;
+  background: linear-gradient(120deg, #fff 20%, #ffb3cd 60%, #c9a3ff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 .landing-tagline { padding-left: 16px; margin-left: 4px; border-left: 1px solid rgba(255, 255, 255, 0.18); color: #cfc8e2; font-size: 0.95rem; font-weight: 500; max-width: 15rem; line-height: 1.35; }
 .landing-logo small { display: block; font-size: 0.7rem; font-weight: 500; color: #9a92b4; letter-spacing: 0.02em; margin-top: 2px; }
 .logo-dot { width: 26px; height: 26px; border-radius: 8px 8px 8px 2px; background: linear-gradient(135deg, #ff5c8a, #a855f7); box-shadow: 0 6px 18px -6px rgba(168, 85, 247, 0.8); }

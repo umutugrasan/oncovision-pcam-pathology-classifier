@@ -16,6 +16,7 @@ export default function Landing() {
       <header className="landing-top">
         <div className="landing-logo">
           <img src="/logo.png" alt="OncoVision" className="landing-logo-img" />
+          <span className="landing-brand">OncoVision</span>
           <span className="landing-tagline">{t.landing.tagline}</span>
         </div>
         <button className="lang-toggle dark" onClick={() => setLang(lang === "tr" ? "en" : "tr")}>
