@@ -1,9 +1,9 @@
-# 🔬 PCam Patoloji Sınıflandırıcı
+# 🔬 OncoVision — PCam Patoloji Sınıflandırıcı
 
 PatchCamelyon (PCam) veri seti üzerinde **transfer learning + fine-tuning** ile
-eğitilmiş bir **ResNet18** modelini web arayüzü üzerinden servis eden uygulama.
-Kullanıcı bir patoloji görseli yükler, model **kanserli / sağlıklı** tahmini ve
-bir olasılık skoru döndürür.
+eğitilmiş bir **ResNet18** modelini modern bir web arayüzü üzerinden servis eden
+uygulama. Kullanıcı bir patoloji görseli yükler; model **kanserli / sağlıklı**
+tahmini, güven skoru ve **Grad-CAM** dikkat haritası döndürür.
 
 > ⚠️ **Yasal Uyarı:** Bu proje yalnızca **araştırma ve eğitim** amaçlıdır,
 > **klinik tanı için kullanılamaz**. Model yalnızca H&E boyalı lenf düğümü
@@ -24,17 +24,30 @@ bir olasılık skoru döndürür.
 - **PDF rapor** — her analiz için indirilebilir çıktı (görsel + Grad-CAM + skor + tarih + uyarı)
 - **Hazır örnek galeri** — tıklayınca otomatik analiz edilen örnek görseller
 - **Performans sayfası** — confusion matrix, ROC, precision-recall, reliability diyagramı
+- **Landing page** — animasyonlu DNA sarmalı + koyu premium tema
+- **TR / EN dil desteği** — tek tıkla dil değişimi
 
 ---
 
 ## 🖥️ Ekran Görüntüleri
 
-Model tahmini, olasılık skoru ve **Grad-CAM** ısı haritası (modelin odaklandığı
-bölge yeşil kare içinde) ile:
+### Landing
+![Landing](docs/ss-landing.png)
 
-| Kanserli tahmini | Sağlıklı tahmini |
+### Analiz sayfası
+![Analiz](docs/ss-analiz.png)
+
+### Tahmin sonuçları (Grad-CAM ısı haritası ile)
+
+| Kanserli | Sağlıklı | Belirsiz |
+|---|---|---|
+| ![Kanserli](docs/ss-kanserli.png) | ![Sağlıklı](docs/ss-saglikli.png) | ![Belirsiz](docs/ss-belirsiz.png) |
+
+### Performans ve Hakkında
+
+| Performans | Hakkında |
 |---|---|
-| ![Kanserli](docs/ekran-kanserli.png) | ![Sağlıklı](docs/ekran-saglikli.png) |
+| ![Performans](docs/ss-performans.png) | ![Hakkında](docs/ss-hakkinda.png) |
 
 ---
 
@@ -78,9 +91,12 @@ merkezindeki dokuda **metastatik meme kanseri** olup olmadığını sınıfland�
 ## 🏗️ Mimari
 
 ```
-React (Vite) ──> nginx ──> FastAPI ──> PyTorch (ResNet18)
-   frontend/            backend/
+React (Vite, koyu tema)  ──>  nginx  ──>  FastAPI  ──>  PyTorch (ResNet18/50)
+   Landing · Analiz              /api           /predict, /models
+   Performans · Hakkında                        Grad-CAM · kalibrasyon · OOD
 ```
+
+Sayfalar: **Landing** (DNA animasyonu) → **Analiz** (araç) · **Performans** (metrikler) · **Hakkında**. TR/EN dil desteği.
 
 ---
 
