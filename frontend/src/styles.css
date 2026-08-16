@@ -46,6 +46,11 @@ body {
 }
 .nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
 .nav-logo { height: 40px; width: auto; display: block; background: #fff; padding: 5px 10px; border-radius: 12px; box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.4); }
+.nav-name {
+  font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;
+  background: linear-gradient(120deg, #fff 20%, #ffb3cd 60%, #c9a3ff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 .nav-ribbon { font-size: 1.1rem; }
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 26px; }

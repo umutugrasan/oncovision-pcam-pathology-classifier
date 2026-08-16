@@ -9,6 +9,7 @@ export default function Navbar() {
     <nav className="navbar">
       <NavLink to="/" className="nav-brand">
         <img src="/logo.png" alt="OncoVision" className="nav-logo" />
+        <span className="nav-name">OncoVision</span>
       </NavLink>
       <div className="nav-right">
         <div className="nav-links">
