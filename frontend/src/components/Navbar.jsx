@@ -8,8 +8,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <NavLink to="/" className="nav-brand">
-        <span className="nav-ribbon" aria-hidden>🎗️</span>
-        {t.nav.brand}
+        <img src="/logo.png" alt="OncoVision" className="nav-logo" />
       </NavLink>
       <div className="nav-right">
         <div className="nav-links">
