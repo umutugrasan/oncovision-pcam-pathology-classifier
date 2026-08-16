@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import CellViz from "../components/CellViz.jsx";
+import DnaViz from "../components/DnaViz.jsx";
 import { useT, useLang } from "../i18n.jsx";
 
 const GITHUB = "https://github.com/umutugrasan/pcam-pathology-classifier";
@@ -54,7 +54,7 @@ export default function Landing() {
           </Link>
         </nav>
 
-        <CellViz />
+        <DnaViz />
       </div>
 
       <footer className="landing-footer">

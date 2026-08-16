@@ -1,57 +1,45 @@
 /**
- * Landing için organik, animasyonlu "hücre" görseli.
- * SVG goo + fiber displacement filtreleri, nefes alan membran, bölünen yavru
- * hücre, fiber doku ve sheen katmanları + süzülen porlar. Tamamen CSS/SVG.
+ * Landing için temiz, ışıltılı "hücre" görseli:
+ * yumuşak membran küresi + çekirdek/çekirdekçik + organeller + süzülen
+ * kabarcıklar. Nazik nefes alma ve yavaş dönme. Tamamen CSS/SVG.
  */
-const BUBBLES = Array.from({ length: 20 }, (_, i) => {
-  const size = 4 + ((i * 7) % 15);
+const BUBBLES = Array.from({ length: 16 }, (_, i) => {
+  const size = 4 + ((i * 7) % 12);
   return {
     size,
-    top: (i * 37) % 90,
-    left: (i * 53) % 86,
-    dur: 7 + ((i * 3) % 10),
-    delay: (i % 8) * 0.7,
+    top: 12 + ((i * 41) % 74),
+    left: 12 + ((i * 57) % 72),
+    dur: 8 + ((i * 3) % 9),
+    delay: (i % 8) * 0.8,
   };
 });
 
-const FILTER_DEFS = `
-<defs>
-  <filter id="cellGoo" x="-60%" y="-60%" width="220%" height="220%">
-    <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur" />
-    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo" />
-    <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-  </filter>
-  <filter id="cellFiber" x="-40%" y="-40%" width="180%" height="180%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.05" numOctaves="3" seed="7" result="noise">
-      <animate attributeName="baseFrequency" values="0.006 0.045;0.009 0.06;0.006 0.045" dur="14s" repeatCount="indefinite" />
-    </feTurbulence>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="34" xChannelSelector="R" yChannelSelector="G" />
-  </filter>
-  <filter id="cellFiberTex" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.01 0.11" numOctaves="4" seed="5" result="n">
-      <animate attributeName="baseFrequency" values="0.01 0.1;0.014 0.13;0.01 0.1" dur="11s" repeatCount="indefinite" />
-    </feTurbulence>
-    <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0.55 0.55 0.55 0 0" />
-  </filter>
-</defs>`;
+// hücre içi organeller (küçük, hafif)
+const ORGANELLES = [
+  { s: 26, t: 58, l: 24 },
+  { s: 18, t: 66, l: 60 },
+  { s: 14, t: 30, l: 66 },
+  { s: 12, t: 48, l: 46 },
+];
 
 export default function CellViz() {
   return (
     <div className="cell-viz" aria-hidden>
-      <svg
-        width="0"
-        height="0"
-        style={{ position: "absolute" }}
-        dangerouslySetInnerHTML={{ __html: FILTER_DEFS }}
-      />
       <div className="cell-orb">
-        <div className="cell-breathe">
-          <div className="cell-main" />
-          <div className="cell-daughter" />
+        <div className="cell-membrane">
+          <div className="cell-cytoplasm" />
+          {ORGANELLES.map((o, i) => (
+            <span
+              key={i}
+              className="cell-organelle"
+              style={{ width: `${o.s}%`, height: `${o.s}%`, top: `${o.t}%`, left: `${o.l}%` }}
+            />
+          ))}
+          <div className="cell-nucleus">
+            <div className="cell-nucleolus" />
+          </div>
+          <div className="cell-sheen" />
         </div>
-        <div className="cell-fiber-tex" />
-        <div className="cell-overlay" />
-        <div className="cell-sheen" />
         {BUBBLES.map((b, i) => (
           <span
             key={i}
