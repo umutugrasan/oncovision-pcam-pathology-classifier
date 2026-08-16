@@ -76,10 +76,11 @@ const DICT = {
     },
     landing: {
       tagline: "Yapay zekâ ile patoloji görüntü analizi",
+      desc: "Lenf düğümü patoloji görsellerinde (H&E) metastatik meme kanserini ResNet18 derin öğrenme modeliyle saniyeler içinde tespit eden bir analiz aracı. Tahmin, güven skoru ve modelin odaklandığı bölgeyi (Grad-CAM) sunar.",
       items: ["Analiz", "Performans", "Hakkında", "İletişim"],
       cta: "Analize Başla",
-      rights: "© 2026 OncoVision · Araştırma & eğitim amaçlıdır",
-      terms: "Yasal Uyarı",
+      rights: "© 2026 OncoVision",
+      disclaimer: "⚠️ Bu araç yalnızca araştırma ve eğitim amaçlıdır; klinik tanı için kullanılamaz. Nihai tanı her zaman uzman patolog tarafından konulmalıdır.",
     },
     perf: {
       title: "Model Performansı",
@@ -179,10 +180,11 @@ const DICT = {
     },
     landing: {
       tagline: "AI-powered pathology image analysis",
+      desc: "An analysis tool that detects metastatic breast cancer in lymph node pathology images (H&E) within seconds, using a ResNet18 deep learning model. It provides the prediction, a confidence score, and the region the model focused on (Grad-CAM).",
       items: ["Analyze", "Performance", "About", "Contact"],
       cta: "Start Analysis",
-      rights: "© 2026 OncoVision · For research & education",
-      terms: "Disclaimer",
+      rights: "© 2026 OncoVision",
+      disclaimer: "⚠️ This tool is for research and education only and cannot be used for clinical diagnosis. Final diagnosis must always be made by an expert pathologist.",
     },
     perf: {
       title: "Model Performance",

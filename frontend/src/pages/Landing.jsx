@@ -47,6 +47,8 @@ export default function Landing() {
               </Link>
             );
           })}
+          <p className="landing-desc">{t.landing.desc}</p>
+
           <Link to="/analiz" className="landing-cta">
             {t.landing.cta} →
           </Link>
@@ -56,8 +58,8 @@ export default function Landing() {
       </div>
 
       <footer className="landing-footer">
-        <span>{t.landing.rights}</span>
-        <Link to="/hakkinda">{t.landing.terms}</Link>
+        <p className="landing-legal">{t.landing.disclaimer}</p>
+        <span className="landing-rights">{t.landing.rights}</span>
       </footer>
     </div>
   );

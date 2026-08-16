@@ -406,9 +406,10 @@ body {
 }
 .landing-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 42px -12px rgba(255, 92, 138, 0.9); }
 
-.landing-footer { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: #8a83a2; letter-spacing: 0.04em; text-transform: uppercase; }
-.landing-footer a { color: #b7afd0; text-decoration: none; }
-.landing-footer a:hover { color: #fff; }
+.landing-desc { max-width: 30rem; margin-top: 18px; color: #b7afd0; font-size: 0.98rem; line-height: 1.6; }
+.landing-footer { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 8px; }
+.landing-legal { max-width: 640px; font-size: 0.74rem; line-height: 1.55; color: #9a92b4; }
+.landing-rights { font-size: 0.72rem; color: #8a83a2; letter-spacing: 0.06em; text-transform: uppercase; }
 
 /* animasyonlu hücre */
 .cell-viz { position: absolute; right: -8%; top: 50%; transform: translateY(-50%); width: min(72vh, 680px); height: min(72vh, 680px); z-index: 1; pointer-events: none; }
