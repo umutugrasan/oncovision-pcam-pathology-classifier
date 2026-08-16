@@ -411,6 +411,23 @@ body {
 .landing-legal { max-width: 640px; font-size: 0.74rem; line-height: 1.55; color: #9a92b4; }
 .landing-rights { font-size: 0.72rem; color: #8a83a2; letter-spacing: 0.06em; text-transform: uppercase; }
 
+/* landing kurdele (hücre parıltısının önünde, hafif süzülen) */
+.landing-ribbon {
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  width: min(46vh, 420px);
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 20px 50px rgba(255, 92, 138, 0.35));
+  animation: ribbonFloat 6s ease-in-out infinite;
+}
+@keyframes ribbonFloat {
+  0%, 100% { transform: translateY(-52%); }
+  50% { transform: translateY(-48%); }
+}
+
 /* animasyonlu hücre */
 .cell-viz { position: absolute; right: -8%; top: 50%; transform: translateY(-50%); width: min(72vh, 680px); height: min(72vh, 680px); z-index: 1; pointer-events: none; }
 .cell-orb { position: absolute; inset: 0; border-radius: 50%; animation: orbPulse 9s ease-in-out infinite; }
@@ -438,7 +455,8 @@ body {
 }
 
 @media (max-width: 820px) {
-  .cell-viz { opacity: 0.35; right: -25%; }
+  .cell-viz { opacity: 0.3; right: -25%; }
+  .landing-ribbon { opacity: 0.35; right: -6%; width: min(34vh, 230px); }
   .landing-logo small { display: none; }
 }
 
