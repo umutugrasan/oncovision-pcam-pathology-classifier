@@ -502,12 +502,12 @@ body {
 .dna-viz {
   position: absolute; right: 6%; top: 50%;
   transform: translateY(-50%) rotate(8deg);
-  height: min(84vh, 760px);
+  height: 100vh;
   display: flex; align-items: center; justify-content: center;
   z-index: 1; pointer-events: none;
   filter: drop-shadow(0 0 60px rgba(168, 85, 247, 0.25));
 }
-.dna { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; perspective: 1000px; }
+.dna { position: relative; display: flex; flex-direction: column; align-items: center; gap: 15px; perspective: 1000px; }
 .dna-base {
   position: relative; width: min(30vh, 240px); height: 5px; border-radius: 3px;
   background: linear-gradient(90deg, #ff5c8a, #a855f7);

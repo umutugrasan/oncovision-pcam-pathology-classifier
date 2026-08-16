@@ -4,7 +4,7 @@
  * klasik dönen helix görünümü oluşur. Uçlardaki parlayan boncuklar iki sarmal
  * omurgayı temsil eder. Tamamen CSS.
  */
-const BASES = Array.from({ length: 22 });
+const BASES = Array.from({ length: 34 });
 
 export default function DnaViz() {
   return (
