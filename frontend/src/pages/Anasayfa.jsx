@@ -105,7 +105,6 @@ export default function Anasayfa() {
           <p className="hero-desc">{t.hero.desc}</p>
         </div>
         <div className="hero-art">
-          <div className="hero-art-circle" aria-hidden />
           <img src="/hero-ribbon.png" alt="Meme kanseri farkındalık kurdelesi" />
         </div>
       </section>
