@@ -55,7 +55,6 @@ export default function Landing() {
         </nav>
 
         <CellViz />
-        <img src="/hero-ribbon.png" className="landing-ribbon" alt="" aria-hidden />
       </div>
 
       <footer className="landing-footer">
