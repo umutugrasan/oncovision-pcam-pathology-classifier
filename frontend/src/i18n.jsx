@@ -76,7 +76,7 @@ const DICT = {
     },
     landing: {
       tagline: "Yapay zekâ ile patoloji görüntü analizi",
-      items: ["Anasayfa", "Analiz", "Performans", "Hakkında", "İletişim"],
+      items: ["Analiz", "Performans", "Hakkında", "İletişim"],
       cta: "Analize Başla",
       rights: "© 2026 OncoVision · Araştırma & eğitim amaçlıdır",
       terms: "Yasal Uyarı",
@@ -179,7 +179,7 @@ const DICT = {
     },
     landing: {
       tagline: "AI-powered pathology image analysis",
-      items: ["Home", "Analyze", "Performance", "About", "Contact"],
+      items: ["Analyze", "Performance", "About", "Contact"],
       cta: "Start Analysis",
       rights: "© 2026 OncoVision · For research & education",
       terms: "Disclaimer",

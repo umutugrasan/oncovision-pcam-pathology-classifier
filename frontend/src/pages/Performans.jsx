@@ -86,18 +86,18 @@ export default function Performans() {
       <div className="chart-grid">
         <div className="card">
           <h2 className="card-title">{t.perf.roc} (AUC = {m.roc.auc})</h2>
-          <CizgiGrafik series={[{ points: rocPts, color: "#e23c74" }]} diagonal xlabel={t.perf.rocX} ylabel={t.perf.rocY} />
+          <CizgiGrafik series={[{ points: rocPts, color: "#ff5c8a" }]} diagonal xlabel={t.perf.rocX} ylabel={t.perf.rocY} />
         </div>
         <div className="card">
           <h2 className="card-title">{t.perf.pr} (AP = {m.pr.ap})</h2>
-          <CizgiGrafik series={[{ points: prPts, color: "#16a34a" }]} xlabel="Recall" ylabel="Precision" />
+          <CizgiGrafik series={[{ points: prPts, color: "#34d399" }]} xlabel="Recall" ylabel="Precision" />
         </div>
         <div className="card">
           <h2 className="card-title">{t.perf.relTitle}</h2>
           <CizgiGrafik
             series={[
               { points: relPts(m.reliability.before), color: "#ef4444" },
-              { points: relPts(m.reliability.after), color: "#16a34a" },
+              { points: relPts(m.reliability.after), color: "#34d399" },
             ]}
             diagonal
             xlabel={t.perf.relX}

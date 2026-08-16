@@ -8,8 +8,8 @@ export default function Landing() {
   const t = useT();
   const { lang, setLang } = useLang();
 
-  // menü hedefleri: [landing, araç, performans, hakkında, iletişim(GitHub)]
-  const targets = ["/", "/analiz", "/performans", "/hakkinda", GITHUB];
+  // menü hedefleri: [araç, performans, hakkında, iletişim(GitHub)]
+  const targets = ["/analiz", "/performans", "/hakkinda", GITHUB];
 
   return (
     <div className="landing">
@@ -30,7 +30,7 @@ export default function Landing() {
         <nav className="landing-menu">
           {t.landing.items.map((label, i) => {
             const to = targets[i];
-            const cls = `menu-item ${i === 1 ? "active" : ""}`;
+            const cls = `menu-item ${i === 0 ? "active" : ""}`;
             const inner = (
               <>
                 <span className="menu-num">0{i + 1}</span>

@@ -1,18 +1,18 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --ink: #2b2456;          /* koyu lacivert başlık/metin */
-  --primary: #e5396f;      /* pembe/rose ana renk */
-  --primary-2: #ff7ba3;
-  --muted: #837a97;
-  --secondary: #fbe9f0;    /* soluk pembe bölüm arka planı */
-  --card: #fdf3f8;         /* kart tonu */
-  --white: #ffffff;
-  --border: #f2d6e1;
-  --green: #16a34a;
-  --red: #e5396f;
-  --amber: #d9832a;
-  --grad: linear-gradient(135deg, #ff7ba3 0%, #e5396f 100%);
+  --ink: #ece9f5;          /* açık metin (koyu tema) */
+  --primary: #ff5c8a;      /* pembe ana renk */
+  --primary-2: #ff9ec0;
+  --muted: #9a92b4;
+  --secondary: rgba(255, 255, 255, 0.06);  /* hafif yüzey */
+  --card: rgba(255, 255, 255, 0.04);        /* cam kart */
+  --white: #221d2e;        /* yükseltilmiş koyu yüzey (dropzone/sonuç/kutular) */
+  --border: rgba(255, 255, 255, 0.10);
+  --green: #34d399;
+  --red: #ff5c8a;
+  --amber: #fbbf24;
+  --grad: linear-gradient(135deg, #ff5c8a 0%, #a855f7 100%);
   --radius: 20px;
 }
 
@@ -25,21 +25,16 @@ body {
   letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   background:
-    radial-gradient(circle at 12% 16%, rgba(255, 150, 185, 0.65), transparent 42%),
-    radial-gradient(circle at 88% 84%, rgba(229, 57, 111, 0.6), transparent 46%),
-    linear-gradient(135deg, #ff6f9c 0%, #ff9ec0 100%);
+    radial-gradient(1000px 600px at 80% 20%, rgba(168, 85, 247, 0.16), transparent 60%),
+    radial-gradient(900px 600px at 15% 90%, rgba(255, 92, 138, 0.16), transparent 60%),
+    linear-gradient(160deg, #17131f 0%, #100d18 60%, #0b0912 100%);
   background-attachment: fixed;
 }
 
-/* ---------- Beyaz panel (shell) ---------- */
+/* ---------- App kabı (shell) — koyu, panelsiz (landing ile uyumlu) ---------- */
 .shell {
   max-width: 1040px;
-  margin: 26px auto;
-  background: var(--white);
-  border-radius: 30px;
-  overflow: hidden;
-  box-shadow: 0 40px 80px -30px rgba(229, 57, 111, 0.45),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
+  margin: 0 auto;
 }
 
 /* ---------- Navbar ---------- */
@@ -137,7 +132,9 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
-  box-shadow: 0 12px 30px -18px rgba(229, 57, 111, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.6);
 }
 .card + .card, .chart-grid { margin-top: 18px; }
 
@@ -207,7 +204,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(14, 11, 20, 0.72);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
@@ -298,7 +295,7 @@ body {
 }
 .score-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; }
 .score-row strong { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
-.bar { position: relative; height: 14px; background: #f1e2e9; border-radius: 8px; overflow: hidden; }
+.bar { position: relative; height: 14px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden; }
 .bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--amber) 55%, var(--red)); border-radius: 8px; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
 .bar-threshold { position: absolute; top: -3px; width: 2px; height: 20px; background: var(--ink); transform: translateX(-1px); }
 .score-detail { margin-top: 11px; color: var(--muted); font-size: 0.83rem; }
@@ -349,14 +346,14 @@ body {
 .cm { width: 100%; border-collapse: collapse; text-align: center; }
 .cm th, .cm td { border: 1px solid var(--border); padding: 15px; font-size: 1.1rem; font-weight: 700; }
 .cm th { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
-.cm .tp, .cm .tn { background: rgba(22, 163, 74, 0.1); color: #15803d; }
-.cm .fp, .cm .fn { background: rgba(229, 57, 111, 0.1); color: var(--primary); }
+.cm .tp, .cm .tn { background: rgba(52, 211, 153, 0.14); color: #6ee7b7; }
+.cm .fp, .cm .fn { background: rgba(255, 92, 138, 0.14); color: var(--primary); }
 .cm-hint { margin-top: 12px; font-size: 0.8rem; color: var(--muted); }
 .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
 .chart-svg { width: 100%; height: auto; }
-.chart-svg .grid { stroke: rgba(43, 36, 86, 0.1); stroke-width: 0.5; }
-.chart-svg .axis { stroke: rgba(43, 36, 86, 0.35); stroke-width: 1; }
-.chart-svg .diagonal { stroke: rgba(43, 36, 86, 0.3); stroke-width: 1; stroke-dasharray: 4 3; }
+.chart-svg .grid { stroke: rgba(255, 255, 255, 0.1); stroke-width: 0.5; }
+.chart-svg .axis { stroke: rgba(255, 255, 255, 0.35); stroke-width: 1; }
+.chart-svg .diagonal { stroke: rgba(255, 255, 255, 0.3); stroke-width: 1; stroke-dasharray: 4 3; }
 .chart-svg .tick { fill: var(--muted); font-size: 9px; }
 .chart-svg .axis-label { fill: var(--muted); font-size: 10px; }
 
