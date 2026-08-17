@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from "react";
  * yola dik yerleşen ve Y ekseninde dönen bir DNA baz çifti koyar. Ardışık
  * bazlar faz kaymalı → kurdeleyi izleyen, dönen çift sarmal.
  */
-// Kendisiyle çaprazlanan (X yapan) farkındalık kurdelesi yolu:
-// sol kuyruk -> sağ taraftan yukarı -> tepe döngü -> sol taraftan aşağı -> sağ kuyruk
-const PATH = "M104 292 C 178 205 170 112 130 96 C 90 112 82 205 156 292";
-const N = 30;
+// Kendisiyle çaprazlanan (X yapan) farkındalık kurdelesi yolu.
+// Döngü tepesi yukarıda, çaprazlama üst-ortada, kuyruklar altta hafif açılır.
+const PATH = "M100 270 C 178 188 164 86 130 48 C 96 86 82 188 160 270";
+const N = 28;
 
 export default function RibbonDna() {
   const pathRef = useRef(null);
