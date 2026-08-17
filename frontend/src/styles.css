@@ -95,9 +95,9 @@ body {
 /* ---------- Hero ---------- */
 .hero {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.45fr 0.55fr;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
   padding: 20px 0 32px;
 }
 .hero-text { display: flex; flex-direction: column; gap: 18px; }
@@ -117,13 +117,14 @@ body {
 }
 .hero-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
 .hero h1 {
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-size: clamp(1.8rem, 3.4vw, 2.9rem);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: -0.03em;
   color: var(--ink);
+  white-space: nowrap;
 }
-.hero-desc { max-width: 30rem; color: var(--muted); font-size: 0.95rem; line-height: 1.65; }
+.hero-desc { max-width: 48rem; color: var(--muted); font-size: 1.02rem; line-height: 1.7; }
 
 .hero-art { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; max-width: 440px; margin: 0 auto; width: 100%; perspective: 900px; }
 .hero-art-circle { position: absolute; inset: 6%; border-radius: 50%; background: var(--secondary); }
@@ -355,6 +356,17 @@ body {
 .metrics td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
 .metrics td:last-child { text-align: right; font-weight: 700; color: var(--primary); }
 .warn-box { margin-top: 16px; padding: 15px; background: rgba(217, 131, 42, 0.08); border: 1px solid rgba(217, 131, 42, 0.3); border-radius: 12px; font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+.credit {
+  margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 0.9rem; color: var(--muted);
+}
+.credit strong { color: var(--ink); }
+.credit a {
+  color: var(--primary); text-decoration: none; font-weight: 600;
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.2s;
+}
+.credit a:hover { border-color: var(--primary); background: rgba(255, 92, 138, 0.08); }
 
 /* ---------- Performans ---------- */
 .card-title { font-size: 1rem; margin-bottom: 14px; font-weight: 700; color: var(--ink); }
@@ -565,6 +577,7 @@ body {
   .nav-links { gap: 16px; }
   .page { padding: 6px 20px 32px; }
   .hero { grid-template-columns: 1fr; text-align: center; }
+  .hero h1 { white-space: normal; }
   .hero-badge { margin: 0 auto; }
   .hero-desc { margin: 0 auto; }
   .hero-art { max-width: 240px; }

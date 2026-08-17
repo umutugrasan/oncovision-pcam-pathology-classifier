@@ -97,11 +97,7 @@ export default function Anasayfa() {
           <span className="hero-badge">
             <span className="hero-dot" aria-hidden /> {t.hero.badge}
           </span>
-          <h1>
-            {t.hero.title1}
-            <br />
-            {t.hero.title2}
-          </h1>
+          <h1>{t.hero.title}</h1>
           <p className="hero-desc">{t.hero.desc}</p>
         </div>
         <div className="hero-art">

@@ -7,6 +7,7 @@ const DICT = {
     nav: { brand: "OncoVision", home: "Anasayfa", performance: "Performans", about: "Hakkında" },
     hero: {
       badge: "Meme Kanseri · Yapay Zeka",
+      title: "Patoloji Görseli Analizi",
       title1: "Patoloji Görseli",
       title2: "Analizi",
       desc:
@@ -73,6 +74,7 @@ const DICT = {
         "Nöral ağların ham softmax çıktısı genelde aşırı özgüvenlidir; model yanılırken bile %99 diyebilir. Bunu düzeltmek için temperature scaling (Guo et al., 2017) uyguladık: validation setinde en iyi sıcaklık T = 1.43 bulundu ve logit'ler bu değere bölünerek güven yüzdesi gerçekçi hale getirildi. Kalibrasyon hatası (ECE) 0.0445 → 0.0138'e düştü. Bu işlem tahminleri ve doğruluğu değiştirmez; yalnızca gösterilen yüzdeyi güvenilir kılar.",
       warn:
         "⚠️ Kısıt: Recall ~0.78 olduğundan model, gerçek kanserli vakaların yaklaşık %22'sini kaçırabilir. Bu nedenle araç klinik tanı için uygun değildir ve yalnızca araştırma / eğitim amaçlıdır.",
+      credit: "Geliştiren",
     },
     landing: {
       tagline: "Yapay zekâ ile patoloji görüntü analizi",
@@ -111,6 +113,7 @@ const DICT = {
     nav: { brand: "OncoVision", home: "Home", performance: "Performance", about: "About" },
     hero: {
       badge: "Breast Cancer · AI",
+      title: "Pathology Image Analysis",
       title1: "Pathology Image",
       title2: "Analysis",
       desc:
@@ -177,6 +180,7 @@ const DICT = {
         "Raw softmax outputs of neural nets are usually overconfident; the model can say 99% even when wrong. To fix this we applied temperature scaling (Guo et al., 2017): the best temperature T = 1.43 was found on the validation set and logits are divided by it to make the confidence realistic. Calibration error (ECE) dropped 0.0445 → 0.0138. This does not change predictions or accuracy; it only makes the displayed percentage trustworthy.",
       warn:
         "⚠️ Limitation: With recall ~0.78, the model may miss about 22% of true cancer cases. Therefore the tool is not suitable for clinical diagnosis and is for research / education only.",
+      credit: "Created by",
     },
     landing: {
       tagline: "AI-powered pathology image analysis",

@@ -34,6 +34,13 @@ export default function Hakkinda() {
         <p>{t.about.pCalib}</p>
 
         <div className="warn-box">{t.about.warn}</div>
+
+        <div className="credit">
+          <span>{t.about.credit}: <strong>Umut Uğraşan</strong></span>
+          <a href="https://github.com/umutugrasan" target="_blank" rel="noreferrer">
+            github.com/umutugrasan ↗
+          </a>
+        </div>
       </main>
     </div>
   );
