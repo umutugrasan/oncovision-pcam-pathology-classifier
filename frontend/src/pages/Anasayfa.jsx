@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import YuklemeAlani from "../components/YuklemeAlani.jsx";
 import SonucKarti from "../components/SonucKarti.jsx";
+import RibbonDna from "../components/RibbonDna.jsx";
 import { useT } from "../i18n.jsx";
 
 // API tabanı: yerelde nginx/vite proxy için "/api", tek-servis derlemesinde ""
@@ -101,7 +102,7 @@ export default function Anasayfa() {
           <p className="hero-desc">{t.hero.desc}</p>
         </div>
         <div className="hero-art">
-          <img src="/hero-ribbon.png" alt="Meme kanseri farkındalık kurdelesi" />
+          <RibbonDna />
         </div>
       </section>
 

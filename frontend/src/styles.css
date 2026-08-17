@@ -594,6 +594,32 @@ body {
 .dna-node.alt { background: radial-gradient(circle at 35% 35%, #ffffff, #c48bff); box-shadow: 0 0 12px rgba(168, 85, 247, 0.75); }
 @keyframes dnaSpin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 
+/* ---------- Kurdele şeklinde DNA (Analiz hero) ---------- */
+.rdna {
+  position: relative; width: 100%; max-width: 400px; aspect-ratio: 260 / 300; margin: 0 auto;
+  transform-style: preserve-3d;
+  animation: rdnaFloat 9s ease-in-out infinite;
+  filter: drop-shadow(0 20px 45px rgba(255, 92, 138, 0.35));
+}
+.rdna-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.rdna-rungs { position: absolute; inset: 0; }
+.rdna-rung { position: absolute; }
+.rdna-bar {
+  width: 30px; height: 4px; margin: -2px 0 0 -15px; border-radius: 3px;
+  background: linear-gradient(90deg, #ff5c8a, #a855f7);
+  transform-style: preserve-3d;
+  animation: dnaSpin 3.6s linear infinite;
+}
+.rdna-node {
+  position: absolute; top: 50%; left: -7px; width: 14px; height: 14px; border-radius: 50%;
+  transform: translateY(-50%);
+  background: radial-gradient(circle at 35% 35%, #ffffff, #ff8fb0);
+  box-shadow: 0 0 10px rgba(255, 92, 138, 0.85);
+}
+.rdna-node.right { left: auto; right: -7px; }
+.rdna-node.alt { background: radial-gradient(circle at 35% 35%, #ffffff, #c48bff); box-shadow: 0 0 10px rgba(168, 85, 247, 0.85); }
+@keyframes rdnaFloat { 0%, 100% { transform: rotateY(-14deg); } 50% { transform: rotateY(14deg); } }
+
 @media (max-width: 820px) {
   .cell-viz { opacity: 0.3; right: -25%; }
   .dna-viz { opacity: 0.45; right: -10%; }
