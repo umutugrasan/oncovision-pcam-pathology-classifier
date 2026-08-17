@@ -596,7 +596,7 @@ body {
 
 /* ---------- Kurdele şeklinde DNA (Analiz hero) ---------- */
 .rdna {
-  position: relative; width: 100%; max-width: 300px; aspect-ratio: 260 / 380; margin: 0 auto;
+  position: relative; width: 100%; max-width: 300px; aspect-ratio: 260 / 380; margin: 0 auto 0 -60px;
   transform-style: preserve-3d;
   animation: rdnaFloat 9s ease-in-out infinite;
   filter: drop-shadow(0 20px 45px rgba(255, 92, 138, 0.35));
