@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 // çapraz kuyruklar (viewBox 260x380). Bead'ler kuyrukları doldurur.
 // Döngü kontrol noktaları (…196 66 … / … 64 66 …) AYNI kalır (aralık korunur);
 // yalnızca kuyruk uçları aşağı uzatıldı (viewBox 260x440).
-const PATH = "M78 424 C 202 198 196 66 130 42 C 64 66 58 198 182 424";
+const PATH = "M78 424 C 200 172 196 66 130 42 C 64 66 60 172 182 424";
 const N = 46;
 
 export default function RibbonDna() {
