@@ -234,17 +234,17 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.text(`Saglikli olasiligi: %${healthyPct}`, L + 60, y + 16.5);
   doc.text(`Model: ${modelName}`, L + 7, y + 22.5);
   doc.text(`Karar esigi: %${thrPct}${result.tta ? "  -  TTA acik" : ""}`, L + 60, y + 22.5);
-  // olasılık çubuğu (sağda)
-  const barX = L + 120, barW = 62, barY = y + 13;
+  // olasılık çubuğu (sağda, kutu içinde)
+  const barX = L + 112, barW = 58, barY = y + 13;
   doc.setFillColor(235, 230, 235);
   doc.rect(barX, barY, barW, 4, "F");
   doc.setFillColor(...stateColor);
   doc.rect(barX, barY, (barW * tumorPct) / 100, 4, "F");
   doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
-  doc.text("0", barX, barY + 8);
-  doc.text("tumor %", barX + barW - 12, barY - 1.5);
-  doc.text("100", barX + barW - 5, barY + 8);
+  doc.text("tumor %", barX + barW - 12, barY - 1.8);
+  doc.text("0", barX, barY + 7.5);
+  doc.text("100", barX + barW - 5, barY + 7.5);
   y += boxH + 5;
 
   // ---- KISA ANALİZ ----
@@ -258,7 +258,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   y += yorumLines.length * 5 + 4;
 
   // ---- FOOTER ----
-  const fy = 268;
+  const fy = 256;
   doc.setDrawColor(...LINE);
   doc.setLineWidth(0.3);
   doc.line(L, fy, R, fy);
@@ -267,6 +267,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.setTextColor(...PINK);
   doc.text("YASAL UYARI", L, fy + 5);
   doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
   const uyari = doc.splitTextToSize(
     ascii(
@@ -278,10 +279,15 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
     W
   );
   doc.text(uyari, L, fy + 9);
+  // kredi satırı — uyarının altında (dinamik), üst satırla iç içe girmez
+  const cy = fy + 9 + uyari.length * 3.5 + 4;
+  doc.setDrawColor(...LINE);
+  doc.setLineWidth(0.2);
+  doc.line(L, cy - 3.5, R, cy - 3.5);
   doc.setFontSize(7);
   doc.setTextColor(...INK);
-  doc.text("OncoVision  -  Created by Umut Ugrasan  -  github.com/umutugrasan", L, 285);
-  doc.text("Sayfa 1 / 1", R, 285, { align: "right" });
+  doc.text("OncoVision  -  Created by Umut Ugrasan  -  github.com/umutugrasan", L, cy);
+  doc.text("Sayfa 1 / 1", R, cy, { align: "right" });
 
   const fname = `OncoVision-rapor-${ts}.pdf`;
   doc.save(fname);
