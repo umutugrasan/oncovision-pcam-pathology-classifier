@@ -11,35 +11,39 @@ class PatchCamelyonDataset(Dataset):
 # HDF5 dosyalarından verileri index bazlı okuyan özel PyTorch Dataset sınıfı.
 
     def __init__(self, x_path, y_path, transform=None):
-     
+
         self.x_path = x_path #Görüntü verilerinin bulunduğu h5 dosysının yolu.
         self.y_path = y_path #Etiketlerin (kanserli/sağlıklı) bulunduğu yol.
         self.transform = transform #Görselleri modele vermeden önce üzerlerinde yapacağımız normalizasyon,yeniden boyutlandırma,döndürme gibi işlemleri tanımlayan dönüştürücü.
-        
-        # Dosyaları okuma modunda açıyoruz
-        self.x_file = h5py.File(self.x_path, 'r')
-        self.y_file = h5py.File(self.y_path, 'r')
-        
 
-        # H5 içindeki dataset anahtarlarına erişim sağlıyoruz
-        
-        self.images = self.x_file['x'] #x içinde görüntüler(images) bulunur.
-        # Örneğin img0 = self.images[0],
-                 #img10 = self.images[10] şeklinde indekslenir.
-        
-        self.labels = self.y_file['y'] #y içinde etiketler bulunur.
-        # Aynı şekilde label0 = self.label[0],
-                      #label10 = self.label[10] gibi indekslenir.
-        
-        self.length = self.images.shape[0] # Toplam veri sayısı
+        # Dosyaları HEMEN açmıyoruz. num_workers>0 (paralel yükleme) kullanınca
+        # her işçi süreç dosyayı KENDİsi açmalı; açık handle'ı süreçler arasında
+        # taşımak Windows'ta çöker. O yüzden lazy (ilk erişimde) açıyoruz.
+        self.x_file = None
+        self.y_file = None
+        self.images = None
+        self.labels = None
+
+        # Uzunluğu almak için dosyayı kısa süre açıp kapatıyoruz.
+        with h5py.File(self.x_path, 'r') as f:
+            self.length = f['x'].shape[0]  # Toplam veri sayısı
+
+    def _ensure_open(self):
+        """h5 dosyalarını (bu süreçte) ilk erişimde açar."""
+        if self.x_file is None:
+            self.x_file = h5py.File(self.x_path, 'r')
+            self.images = self.x_file['x']
+            self.y_file = h5py.File(self.y_path, 'r')
+            self.labels = self.y_file['y']
 
     def __len__(self):
-        return self.length 
+        return self.length
     # böylece len(train_dataset) dendiğinde pytorch self.length değerini alıyor.
     # örneğin len(train_dataset) = 262144 gibi.
 
 
     def __getitem__(self, idx):
+        self._ensure_open()
         # h5 dosyasından ilgili indexteki resmi ve etiketi çekiyoruz
         img = self.images[idx] # (96, 96, 3) boyutunda numpy array
         label = self.labels[idx] # Etiket matrisi
@@ -57,8 +61,12 @@ class PatchCamelyonDataset(Dataset):
 
     def close(self):
         """Dosyaları güvenli bir şekilde kapatmak için kullanılır."""
-        self.x_file.close()
-        self.y_file.close()
+        if self.x_file is not None:
+            self.x_file.close()
+            self.x_file = None
+        if self.y_file is not None:
+            self.y_file.close()
+            self.y_file = None
 
 # =====================================================================
 # VERİ ÖN İŞLEME VE AUGMENTATION (VERİ ARTIRMA) MÜHENDİSLİĞİ

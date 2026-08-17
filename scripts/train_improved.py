@@ -33,6 +33,12 @@ from PIL import Image
 from dataset import PatchCamelyonDataset  # scripts/ ile ayni dizinde
 from model_cnn import PcamCNN
 
+try:
+    from tqdm.auto import tqdm  # ilerleme cubugu (epoch icinde batch'ler)
+except Exception:
+    def tqdm(x, **k):
+        return x
+
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
@@ -100,13 +106,15 @@ def build_model(name, hidden=32):
     return m
 
 
-def loader(x, y, tf, bs, limit=None, shuffle=False):
+def loader(x, y, tf, bs, limit=None, shuffle=False, workers=0):
     ds = PatchCamelyonDataset(f"data/camelyonpatch_level_2_split_{x}_x.h5",
                               f"data/camelyonpatch_level_2_split_{y}_y.h5", transform=tf)
     if limit:
         idx = np.linspace(0, len(ds) - 1, min(limit, len(ds))).astype(int)
         ds = Subset(ds, idx.tolist())
-    return DataLoader(ds, batch_size=bs, shuffle=shuffle, num_workers=0)
+    return DataLoader(ds, batch_size=bs, shuffle=shuffle, num_workers=workers,
+                      pin_memory=torch.cuda.is_available(),
+                      persistent_workers=(workers > 0))
 
 
 @torch.no_grad()
@@ -143,6 +151,7 @@ def main():
     ap.add_argument("--patience", type=int, default=6)
     ap.add_argument("--hidden", type=int, default=32)
     ap.add_argument("--limit", type=int, default=None, help="hizli deneme icin ornek sayisi")
+    ap.add_argument("--workers", type=int, default=4, help="paralel veri yukleyici isci sayisi (GPU'yu bekletmemek icin)")
     args = ap.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -151,9 +160,9 @@ def main():
 
     size = 96 if args.model == "cnn" else 224
     train_tf, eval_tf = build_transforms(size)
-    train_dl = loader("train", "train", train_tf, args.batch, args.limit, shuffle=True)
-    val_dl = loader("valid", "valid", eval_tf, args.batch, args.limit)
-    test_dl = loader("test", "test", eval_tf, args.batch, args.limit)
+    train_dl = loader("train", "train", train_tf, args.batch, args.limit, shuffle=True, workers=args.workers)
+    val_dl = loader("valid", "valid", eval_tf, args.batch, args.limit, workers=args.workers)
+    test_dl = loader("test", "test", eval_tf, args.batch, args.limit, workers=args.workers)
 
     model = build_model(args.model, args.hidden).to(device)
     lr = args.lr if args.model == "cnn" else args.lr * 0.3  # fine-tune icin daha kucuk
@@ -169,7 +178,7 @@ def main():
     for epoch in range(1, args.epochs + 1):
         model.train()
         run_loss = 0.0
-        for X, yb in train_dl:
+        for X, yb in tqdm(train_dl, desc=f"Epoch {epoch}/{args.epochs}", leave=False):
             yb = yb.squeeze().long() if yb.ndim > 1 else yb.long()
             X, yb = X.to(device), yb.to(device)
             opt.zero_grad()
