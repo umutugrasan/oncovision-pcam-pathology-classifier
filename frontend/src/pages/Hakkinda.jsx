@@ -23,10 +23,10 @@ export default function Hakkinda() {
         <h2>{t.about.h2perf}</h2>
         <table className="metrics">
           <tbody>
-            <tr><td>{t.perf.accuracy}</td><td>%87.15</td></tr>
-            <tr><td>Precision</td><td>0.9495</td></tr>
-            <tr><td>Recall</td><td>0.7846</td></tr>
-            <tr><td>F1-Score</td><td>0.8592</td></tr>
+            <tr><td>{t.perf.accuracy}</td><td>%85.43</td></tr>
+            <tr><td>Precision</td><td>0.9690</td></tr>
+            <tr><td>Recall</td><td>0.7318</td></tr>
+            <tr><td>F1-Score</td><td>0.8339</td></tr>
           </tbody>
         </table>
 

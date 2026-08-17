@@ -61,30 +61,26 @@ merkezindeki dokuda **metastatik meme kanseri** olup olmadığını sınıfland�
 - Girdi: 96×96 RGB patch → `Resize(224)` → ImageNet normalizasyonu
 - Çıktı: 2 sınıflı softmax
 
-### Model performansı (ResNet18, final)
+### Model performansı (ResNet18 — tüm PCam test seti, 32.768 örnek)
 
 | Metrik | Değer |
 |---|---|
-| Test Doğruluğu | %87.15 |
-| Precision | 0.9495 |
-| Recall | 0.7846 |
-| F1-Score | 0.8592 |
+| Test Doğruluğu | %85.43 |
+| Precision | 0.9690 |
+| Recall | 0.7318 |
+| F1-Score | 0.8339 |
 
-> Not: Recall görece düşük — model gerçek kanserli vakaların ~%22'sini
+> Not: Recall görece düşük — model gerçek kanserli vakaların ~%27'sini
 > kaçırabilir. Bu, klinik kullanıma uygun olmadığının bir göstergesidir.
 
-### Karışıklık Matrisi (tüm test seti — 32.768 örnek)
+### Karışıklık Matrisi
 
 ![Confusion Matrix](docs/confusion_matrix.png)
 
 |  | Tahmin: Sağlıklı | Tahmin: Kanserli |
 |---|---|---|
-| **Gerçek: Sağlıklı** | 15708 (TN) | 683 (FP) |
-| **Gerçek: Kanserli** | 3527 (FN) | 12850 (TP) |
-
-### Eğitim Grafiği (en iyi model: Epoch 3, Val Acc %91.54)
-
-![Eğitim Grafiği](docs/training_curve.png)
+| **Gerçek: Sağlıklı** | 16008 (TN) | 383 (FP) |
+| **Gerçek: Kanserli** | 4392 (FN) | 11985 (TP) |
 
 ---
 
