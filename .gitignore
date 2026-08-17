@@ -31,3 +31,10 @@ Thumbs.db
 
 # Video kayitlari
 *.mp4
+
+# Eğitim deneme çıktıları — PC'de tutulur, GitHub'a gitmez (kullanıcı isteği)
+/results/
+/yeni resnet18 sonuçları/
+/resnet18_egitim_grafigi.png
+/logo-removebg-preview.png
+/debug_best_val.py
