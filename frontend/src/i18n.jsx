@@ -11,7 +11,7 @@ const DICT = {
       title1: "Patoloji Görseli",
       title2: "Analizi",
       desc:
-        "Lenf düğümünde metastatik meme kanseri tespiti için ResNet18 tabanlı derin öğrenme aracı. Bir H&E patch'i yükle; model saniyeler içinde tahminini, güven skorunu ve odaklandığı bölgeyi (Grad-CAM) göstersin.",
+        "Lenf düğümünde metastatik meme kanseri tespiti için, bu proje için sıfırdan eğitilmiş özel bir CNN. Bir H&E patch'i yükle; model saniyeler içinde tahminini, güven skorunu ve odaklandığı bölgeyi (Grad-CAM) göstersin.",
     },
     tool: {
       model: "Model:",
@@ -63,22 +63,22 @@ const DICT = {
       subtitle: "Model, veri seti ve performans bilgisi",
       h2model: "Model ne yapıyor?",
       pModel:
-        "Bu araç, PatchCamelyon (PCam) veri seti üzerinde transfer learning + fine-tuning ile eğitilmiş bir ResNet18 modelini kullanır. PCam, Camelyon16'dan türetilmiştir; görüntüler meme kanseri hastalarının lenf düğümü kesitleridir (H&E boyalı). Model, bir patch'in merkez dokusunda metastatik meme kanseri olup olmadığını sınıflandırır.",
+        "Bu araç, PatchCamelyon (PCam) veri seti üzerinde eğitilmiş modellerle çalışır. Varsayılan ve en iyi model, bu proje için sıfırdan tasarlanıp eğitilen özel bir CNN'dir (görsel başına en yüksek TEST doğruluğu ve recall). Karşılaştırma için ResNet18 ve ResNet50 (transfer learning) de seçilebilir. PCam, Camelyon16'dan türetilmiştir; görüntüler meme kanseri hastalarının lenf düğümü kesitleridir (H&E boyalı). Model, bir patch'in merkez dokusunda metastatik meme kanseri olup olmadığını sınıflandırır.",
       h2tech: "Teknik detay",
-      tech1: "Girdi: 96×96 RGB patch → Resize(224) → ImageNet normalizasyonu",
+      tech1: "Varsayılan: Özel CNN — 4 evrişim bloğu (BN + ReLU) + GlobalAvgPool, 96×96 girdi",
       tech2: "Çıktı: 2 sınıflı softmax (0 = Sağlıklı, 1 = Kanserli)",
-      tech3: "Fine-tuning: layer3 + layer4 açık, Adam (lr=1e-4)",
-      h2perf: "Performans (ResNet18, final)",
+      tech3: "Eğitim: güçlü augmentation (D8 + HED stain), AdamW + Cosine LR + label smoothing",
+      h2perf: "Performans (Özel CNN — en iyi model, TEST)",
       h2calib: "Güven skoru kalibrasyonu",
       pCalib:
-        "Nöral ağların ham softmax çıktısı genelde aşırı özgüvenlidir; model yanılırken bile %99 diyebilir. Bunu düzeltmek için temperature scaling (Guo et al., 2017) uyguladık: validation setinde en iyi sıcaklık T = 1.43 bulundu ve logit'ler bu değere bölünerek güven yüzdesi gerçekçi hale getirildi. Kalibrasyon hatası (ECE) 0.0445 → 0.0138'e düştü. Bu işlem tahminleri ve doğruluğu değiştirmez; yalnızca gösterilen yüzdeyi güvenilir kılar.",
+        "Nöral ağların ham softmax çıktısı genelde aşırı özgüvenlidir; model yanılırken bile %99 diyebilir. Bunu düzeltmek için temperature scaling (Guo et al., 2017) uyguladık: özel CNN için validation setinde en iyi sıcaklık T = 0.84 bulundu ve logit'ler bu değere bölünerek güven yüzdesi gerçekçi hale getirildi. Kalibrasyon hatası (ECE) 0.0271 → 0.0047'ye düştü. Bu işlem tahminleri ve doğruluğu değiştirmez; yalnızca gösterilen yüzdeyi güvenilir kılar.",
       warn:
-        "⚠️ Kısıt: Recall ~0.73 olduğundan model, gerçek kanserli vakaların yaklaşık %27'sini kaçırabilir. Bu nedenle araç klinik tanı için uygun değildir ve yalnızca araştırma / eğitim amaçlıdır.",
+        "⚠️ Kısıt: Recall ~0.85 olduğundan model, gerçek kanserli vakaların yaklaşık %15'ini kaçırabilir. Bu nedenle araç klinik tanı için uygun değildir ve yalnızca araştırma / eğitim amaçlıdır.",
       credit: "Geliştiren",
     },
     landing: {
       tagline: "Yapay zekâ ile patoloji görüntü analizi",
-      desc: "Lenf düğümü patoloji görsellerinde (H&E) metastatik meme kanserini ResNet18 derin öğrenme modeliyle saniyeler içinde tespit eden bir analiz aracı. Tahmin, güven skoru ve modelin odaklandığı bölgeyi (Grad-CAM) sunar.",
+      desc: "Lenf düğümü patoloji görsellerinde (H&E) metastatik meme kanserini, bu proje için sıfırdan eğitilmiş özel bir CNN ile saniyeler içinde tespit eden bir analiz aracı. Tahmin, güven skoru ve modelin odaklandığı bölgeyi (Grad-CAM) sunar.",
       items: ["Analiz", "Performans", "Hakkında", "İletişim"],
       cta: "Analize Başla",
       rights: "© 2026 OncoVision",
@@ -117,7 +117,7 @@ const DICT = {
       title1: "Pathology Image",
       title2: "Analysis",
       desc:
-        "A ResNet18-based deep learning tool for detecting metastatic breast cancer in lymph nodes. Upload an H&E patch and the model returns a prediction, confidence score, and the region it focused on (Grad-CAM) within seconds.",
+        "A custom CNN, trained from scratch for this project, for detecting metastatic breast cancer in lymph nodes. Upload an H&E patch and the model returns a prediction, confidence score, and the region it focused on (Grad-CAM) within seconds.",
     },
     tool: {
       model: "Model:",
@@ -169,22 +169,22 @@ const DICT = {
       subtitle: "Model, dataset and performance",
       h2model: "What does the model do?",
       pModel:
-        "This tool uses a ResNet18 model trained with transfer learning + fine-tuning on the PatchCamelyon (PCam) dataset. PCam is derived from Camelyon16; the images are lymph node sections of breast cancer patients (H&E-stained). The model classifies whether a patch's center tissue contains metastatic breast cancer.",
+        "This tool runs models trained on the PatchCamelyon (PCam) dataset. The default and best model is a custom CNN designed and trained from scratch for this project (highest TEST accuracy and recall). ResNet18 and ResNet50 (transfer learning) are also selectable for comparison. PCam is derived from Camelyon16; the images are lymph node sections of breast cancer patients (H&E-stained). The model classifies whether a patch's center tissue contains metastatic breast cancer.",
       h2tech: "Technical details",
-      tech1: "Input: 96×96 RGB patch → Resize(224) → ImageNet normalization",
+      tech1: "Default: custom CNN — 4 conv blocks (BN + ReLU) + GlobalAvgPool, 96×96 input",
       tech2: "Output: 2-class softmax (0 = Healthy, 1 = Tumor)",
-      tech3: "Fine-tuning: layer3 + layer4 unfrozen, Adam (lr=1e-4)",
-      h2perf: "Performance (ResNet18, final)",
+      tech3: "Training: strong augmentation (D8 + HED stain), AdamW + Cosine LR + label smoothing",
+      h2perf: "Performance (custom CNN — best model, TEST)",
       h2calib: "Confidence calibration",
       pCalib:
-        "Raw softmax outputs of neural nets are usually overconfident; the model can say 99% even when wrong. To fix this we applied temperature scaling (Guo et al., 2017): the best temperature T = 1.43 was found on the validation set and logits are divided by it to make the confidence realistic. Calibration error (ECE) dropped 0.0445 → 0.0138. This does not change predictions or accuracy; it only makes the displayed percentage trustworthy.",
+        "Raw softmax outputs of neural nets are usually overconfident; the model can say 99% even when wrong. To fix this we applied temperature scaling (Guo et al., 2017): for the custom CNN the best temperature T = 0.84 was found on the validation set and logits are divided by it to make the confidence realistic. Calibration error (ECE) dropped 0.0271 → 0.0047. This does not change predictions or accuracy; it only makes the displayed percentage trustworthy.",
       warn:
-        "⚠️ Limitation: With recall ~0.73, the model may miss about 27% of true cancer cases. Therefore the tool is not suitable for clinical diagnosis and is for research / education only.",
+        "⚠️ Limitation: With recall ~0.85, the model may miss about 15% of true cancer cases. Therefore the tool is not suitable for clinical diagnosis and is for research / education only.",
       credit: "Created by",
     },
     landing: {
       tagline: "AI-powered pathology image analysis",
-      desc: "An analysis tool that detects metastatic breast cancer in lymph node pathology images (H&E) within seconds, using a ResNet18 deep learning model. It provides the prediction, a confidence score, and the region the model focused on (Grad-CAM).",
+      desc: "An analysis tool that detects metastatic breast cancer in lymph node pathology images (H&E) within seconds, using a custom CNN trained from scratch for this project. It provides the prediction, a confidence score, and the region the model focused on (Grad-CAM).",
       items: ["Analyze", "Performance", "About", "Contact"],
       cta: "Start Analysis",
       rights: "© 2026 OncoVision",

@@ -58,7 +58,8 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   const isTumor = pTumor >= threshold;
   const isUncertain = Math.abs(pTumor - threshold) <= 0.1;
   const unsuitable = result.suitability && result.suitability.suitable === false;
-  const modelName = (result.model || "-").toUpperCase();
+  const MODEL_LABELS = { cnn: "Özel CNN", resnet18: "ResNet18", resnet50: "ResNet50" };
+  const modelName = MODEL_LABELS[result.model] || (result.model || "-").toUpperCase();
 
   const label = isUncertain
     ? "BELİRSİZ — Uzman incelemesi gerekli"

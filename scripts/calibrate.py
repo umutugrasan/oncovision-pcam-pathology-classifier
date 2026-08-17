@@ -11,6 +11,7 @@ Calistirma (proje kokunde, backend imajiyla):
   docker run --rm -v "<proje>:/work" -w /work pcam_project-backend \
     sh -c "pip install -q h5py && python calibrate.py"
 """
+import os
 import sys
 import json
 
@@ -22,19 +23,25 @@ import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # scripts/ -> model_cnn
+from model_cnn import PcamCNN
+
 DEVICE = torch.device("cpu")
 VAL_X = "data/camelyonpatch_level_2_split_valid_x.h5"
 VAL_Y = "data/camelyonpatch_level_2_split_valid_y.h5"
 MAX_SAMPLES = 8000   # kalibrasyon icin fazlasiyla yeterli, hiz icin alt kume
 BATCH = 64
 
-# Komut satirindan model adi (varsayilan resnet18):  python calibrate.py resnet50
+# Komut satirindan model adi (varsayilan resnet18):  python calibrate.py cnn
 MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else "resnet18"
-MODEL_PATH = f"backend/models/{MODEL_NAME}_pcam_best.pth"
+# CNN agirligi farkli isimde (cnn_improved.pth) ve 96x96 girdi kullanir.
+MODEL_PATH = ("backend/models/cnn_improved.pth" if MODEL_NAME == "cnn"
+              else f"backend/models/{MODEL_NAME}_pcam_best.pth")
 OUT_PATH = f"backend/models/{MODEL_NAME}_temperature.json"
+INPUT_SIZE = 96 if MODEL_NAME == "cnn" else 224
 
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+    transforms.Resize((INPUT_SIZE, INPUT_SIZE)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225]),
@@ -42,6 +49,8 @@ transform = transforms.Compose([
 
 
 def build_model():
+    if MODEL_NAME == "cnn":
+        return PcamCNN(hidden=32, n_classes=2)
     if MODEL_NAME == "resnet18":
         m = models.resnet18(weights=None)
     elif MODEL_NAME == "resnet50":

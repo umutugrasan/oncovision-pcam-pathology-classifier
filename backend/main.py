@@ -52,7 +52,7 @@ def models_list():
 @app.post("/predict")
 async def predict(
     file: UploadFile = File(...),
-    model: str = Form("resnet18"),
+    model: str = Form("cnn"),
     tta: bool = Form(False),
 ):
     if file.content_type not in ALLOWED_TYPES:

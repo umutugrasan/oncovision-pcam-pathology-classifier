@@ -9,6 +9,9 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
 const API_URL = `${API_BASE}/predict`;
 const MODELS_URL = `${API_BASE}/models`;
 
+// Model butonlarinda gosterilecek okunur adlar
+const MODEL_LABELS = { cnn: "Özel CNN", resnet18: "ResNet18", resnet50: "ResNet50" };
+
 export default function Anasayfa() {
   const t = useT();
   const [file, setFile] = useState(null);
@@ -17,8 +20,8 @@ export default function Anasayfa() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [threshold, setThreshold] = useState(0.5);
-  const [models, setModels] = useState(["resnet18"]);
-  const [selectedModel, setSelectedModel] = useState("resnet18");
+  const [models, setModels] = useState(["cnn"]);
+  const [selectedModel, setSelectedModel] = useState("cnn");
   const [useTta, setUseTta] = useState(false);
 
   const SAMPLES = [
@@ -118,7 +121,8 @@ export default function Anasayfa() {
                   onClick={() => setSelectedModel(m)}
                   disabled={loading}
                 >
-                  {m.toUpperCase()}
+                  {MODEL_LABELS[m] || m.toUpperCase()}
+                  {m === "cnn" && <span className="best-badge">★ en iyi</span>}
                 </button>
               ))}
             </div>

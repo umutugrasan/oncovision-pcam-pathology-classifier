@@ -17,16 +17,24 @@ import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image, ImageDraw
 
+from model_cnn import PcamCNN  # sifirdan egitilen ozel CNN (backend/model_cnn.py)
+
 # ---- Sabitler ----
 # Eğitimde: 0 = Sağlıklı, 1 = Kanserli
 CLASS_NAMES = {0: "Saglikli", 1: "Kanserli"}
 
-# Desteklenen modeller: ağırlık dosyaları backend/models/ altında
+# Desteklenen modeller: ağırlık dosyaları backend/models/ altında.
+# Sıra ÖNEMLİ: frontend listenin ilkini varsayılan seçer -> "cnn" en başta.
+# cnn = sıfırdan eğitilmiş özel model; TEST'te en iyi performans (bkz. metrics.json).
 MODEL_PATHS = {
+    "cnn": "models/cnn_improved.pth",
     "resnet18": "models/resnet18_pcam_best.pth",
     "resnet50": "models/resnet50_pcam_best.pth",
 }
-DEFAULT_MODEL = "resnet18"
+DEFAULT_MODEL = "cnn"  # en iyi model (TEST acc %89.7, recall 0.85)
+
+# Modele göre girdi boyutu: özel CNN 96x96 (native PCam), ResNet 224x224.
+MODEL_INPUT_SIZE = {"cnn": 96, "resnet18": 224, "resnet50": 224}
 
 # Belirsizlik bandı: tümör olasılığı bu aralıktaysa "Belirsiz" (kararsız) sayılır
 UNCERTAIN_LOW = 0.40
@@ -90,19 +98,28 @@ def _load_temperature(model_name):
         return 1.0
 
 
-# Eğitimdeki val_transforms ile birebir aynı (dataset.py)
-_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225]),
-])
+# Eğitimdeki eval transform ile birebir aynı. Modele göre boyut değişir
+# (CNN 96x96 -> train_improved.py; ResNet 224x224 -> dataset.py).
+_IMAGENET_MEAN = [0.485, 0.456, 0.406]
+_IMAGENET_STD = [0.229, 0.224, 0.225]
+
+
+def _transform_for(model_name):
+    size = MODEL_INPUT_SIZE.get(model_name, 224)
+    return transforms.Compose([
+        transforms.Resize((size, size)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=_IMAGENET_MEAN, std=_IMAGENET_STD),
+    ])
+
 
 _cache = {}  # model_name -> (model, temperature)
 
 
 def build_model(model_name):
-    """Eğitimdeki mimariyi (train.py -> build_model) inference için kurar."""
+    """Eğitimdeki mimariyi inference için kurar (CNN veya ResNet fine-tune)."""
+    if model_name == "cnn":
+        return PcamCNN(hidden=32, n_classes=2)  # train_improved.py ile aynı
     if model_name == "resnet18":
         model = models.resnet18(weights=None)
     elif model_name == "resnet50":
@@ -111,6 +128,13 @@ def build_model(model_name):
         raise ValueError(f"Bilinmeyen model: {model_name}")
     model.fc = nn.Linear(model.fc.in_features, 2)
     return model
+
+
+def _gradcam_layer(model, model_name):
+    """Grad-CAM için son konvolüsyon katmanını döndürür (modele göre)."""
+    if model_name == "cnn":
+        return model.features  # (C, 6, 6) çıkışı — son conv bloğu
+    return model.layer4        # ResNet: (C, 7, 7)
 
 
 def load_model(model_name=DEFAULT_MODEL):
@@ -140,9 +164,10 @@ def _jet_colormap(x: np.ndarray) -> np.ndarray:
     return (np.stack([r, g, b], axis=-1) * 255).astype(np.uint8)
 
 
-def _compute_gradcam(model, tensor, class_idx):
+def _compute_gradcam(model, tensor, class_idx, target_layer):
     """
-    layer4 üzerinden Grad-CAM ısı haritası (7x7) üretir, 0..1 normalize eder.
+    Verilen katmanın çıkışı üzerinden Grad-CAM ısı haritası üretir
+    (ResNet 7x7, özel CNN 6x6), 0..1 normalize eder.
     """
     activations = {}
     gradients = {}
@@ -153,8 +178,8 @@ def _compute_gradcam(model, tensor, class_idx):
     def bwd_hook(_m, _gi, gout):
         gradients["value"] = gout[0].detach()
 
-    h1 = model.layer4.register_forward_hook(fwd_hook)
-    h2 = model.layer4.register_full_backward_hook(bwd_hook)
+    h1 = target_layer.register_forward_hook(fwd_hook)
+    h2 = target_layer.register_full_backward_hook(bwd_hook)
 
     model.zero_grad()
     logits = model(tensor)
@@ -164,8 +189,8 @@ def _compute_gradcam(model, tensor, class_idx):
     h1.remove()
     h2.remove()
 
-    acts = activations["value"][0]        # (C, 7, 7)
-    grads = gradients["value"][0]         # (C, 7, 7)
+    acts = activations["value"][0]        # (C, h, w)
+    grads = gradients["value"][0]         # (C, h, w)
     weights = grads.mean(dim=(1, 2))      # (C,)  -> her kanalın önemi
     cam = torch.relu((weights[:, None, None] * acts).sum(dim=0))  # (7, 7)
 
@@ -229,7 +254,7 @@ def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
     # OOD: görsel H&E/PCam profiline benziyor mu?
     suitability = assess_suitability(img)
 
-    tensor = _transform(img).unsqueeze(0).to(DEVICE)  # (1, 3, 224, 224)
+    tensor = _transform_for(model_name)(img).unsqueeze(0).to(DEVICE)  # (1, 3, S, S)
 
     # Kalibrasyon: logit'leri T'ye bölerek güven yüzdesini dürüstleştir
     with torch.no_grad():
@@ -243,7 +268,7 @@ def predict_image(image_bytes: bytes, model_name: str = DEFAULT_MODEL,
     # Grad-CAM her zaman orijinal yönelim üzerinden hesaplanır
     heatmap = None
     if with_heatmap:
-        cam, _ = _compute_gradcam(model, tensor, pred_idx)
+        cam, _ = _compute_gradcam(model, tensor, pred_idx, _gradcam_layer(model, model_name))
         heatmap = _make_overlay(img, cam)
 
     p_healthy = float(probs[0].item())

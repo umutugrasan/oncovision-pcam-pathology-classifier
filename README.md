@@ -1,8 +1,10 @@
 # 🔬 OncoVision — PCam Patoloji Sınıflandırıcı
 
-PatchCamelyon (PCam) veri seti üzerinde **transfer learning + fine-tuning** ile
-eğitilmiş bir **ResNet18** modelini modern bir web arayüzü üzerinden servis eden
-uygulama. Kullanıcı bir patoloji görseli yükler; model **kanserli / sağlıklı**
+PatchCamelyon (PCam) veri seti üzerinde eğitilmiş modelleri modern bir web
+arayüzü üzerinden servis eden uygulama. Varsayılan ve **en iyi model, bu proje
+için sıfırdan tasarlanıp eğitilen özel bir CNN**'dir (TEST'te **%89.7 doğruluk /
+0.85 recall**); karşılaştırma için ResNet18 ve ResNet50 (transfer learning) de
+seçilebilir. Kullanıcı bir patoloji görseli yükler; model **kanserli / sağlıklı**
 tahmini, güven skoru ve **Grad-CAM** dikkat haritası döndürür.
 
 > ⚠️ **Yasal Uyarı:** Bu proje yalnızca **araştırma ve eğitim** amaçlıdır,
@@ -18,7 +20,7 @@ tahmini, güven skoru ve **Grad-CAM** dikkat haritası döndürür.
 - **Güven kalibrasyonu (temperature scaling)** — dürüst güven yüzdesi (ECE ↓)
 - **Belirsizlik uyarısı** — karar sınırındaki vakalarda "Belirsiz, uzman incelemesi gerekli"
 - **Ayarlanabilir karar eşiği** — recall/precision dengesini slider ile canlı ayarla
-- **Model seçimi** — ResNet18 ↔ ResNet50 karşılaştırma
+- **Model seçimi** — Özel CNN (varsayılan, en iyi) ↔ ResNet18 ↔ ResNet50 karşılaştırma
 - **Test-time augmentation (TTA)** — 4 varyant ortalaması ile daha kararlı tahmin
 - **OOD kontrolü** — H&E/PCam profiline benzemeyen görsellerde "bu görsel uygun değil" uyarısı
 - **PDF rapor** — her analiz için indirilebilir çıktı (görsel + Grad-CAM + skor + tarih + uyarı)
@@ -58,29 +60,32 @@ hastalarının **lenf düğümü** kesitleridir (H&E boyalı). Model, bir patch'
 merkezindeki dokuda **metastatik meme kanseri** olup olmadığını sınıflandırır.
 
 - `0 = Sağlıklı`, `1 = Kanserli`
-- Girdi: 96×96 RGB patch → `Resize(224)` → ImageNet normalizasyonu
 - Çıktı: 2 sınıflı softmax
+- **Özel CNN (varsayılan):** 4 evrişim bloğu (Conv+BN+ReLU ×2 + MaxPool) → GlobalAvgPool → FC, 96×96 girdi
+- **ResNet18/50:** transfer learning + fine-tuning, `Resize(224)` → ImageNet normalizasyonu
+- Eğitim (özel CNN): güçlü augmentation (**D8 döndürme + HED stain**), AdamW + Cosine LR + label smoothing
 
-### Model performansı (ResNet18 — tüm PCam test seti, 32.768 örnek)
+### Model performansı (tüm PCam TEST seti, 32.768 örnek)
 
-| Metrik | Değer |
-|---|---|
-| Test Doğruluğu | %85.43 |
-| Precision | 0.9690 |
-| Recall | 0.7318 |
-| F1-Score | 0.8339 |
+| Metrik | **Özel CNN** ⭐ | ResNet18 |
+|---|---|---|
+| Test Doğruluğu | **%89.73** | %85.43 |
+| Precision | 0.9362 | 0.9690 |
+| Recall | **0.8527** | 0.7318 |
+| F1-Score | **0.8925** | 0.8339 |
 
-> Not: Recall görece düşük — model gerçek kanserli vakaların ~%27'sini
-> kaçırabilir. Bu, klinik kullanıma uygun olmadığının bir göstergesidir.
+> **Özel CNN, kaçırılan kanseri ~%27'den ~%15'e düşürür** (recall 0.73 → 0.85) —
+> klinik açıdan en kritik kazanç budur. Yine de model klinik tanı için uygun
+> değildir; yalnızca araştırma / eğitim amaçlıdır.
 
-### Karışıklık Matrisi
+### Karışıklık Matrisi (Özel CNN — tüm TEST seti)
 
 ![Confusion Matrix](docs/confusion_matrix.png)
 
 |  | Tahmin: Sağlıklı | Tahmin: Kanserli |
 |---|---|---|
-| **Gerçek: Sağlıklı** | 16008 (TN) | 383 (FP) |
-| **Gerçek: Kanserli** | 4392 (FN) | 11985 (TP) |
+| **Gerçek: Sağlıklı** | 15439 (TN) | 952 (FP) |
+| **Gerçek: Kanserli** | 2412 (FN) | 13965 (TP) |
 
 ---
 

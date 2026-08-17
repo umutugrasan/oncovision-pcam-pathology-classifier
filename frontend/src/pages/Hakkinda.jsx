@@ -23,12 +23,17 @@ export default function Hakkinda() {
         <h2>{t.about.h2perf}</h2>
         <table className="metrics">
           <tbody>
-            <tr><td>{t.perf.accuracy}</td><td>%85.43</td></tr>
-            <tr><td>Precision</td><td>0.9690</td></tr>
-            <tr><td>Recall</td><td>0.7318</td></tr>
-            <tr><td>F1-Score</td><td>0.8339</td></tr>
+            <tr><td>{t.perf.accuracy}</td><td>%89.73</td></tr>
+            <tr><td>Precision</td><td>0.9362</td></tr>
+            <tr><td>Recall</td><td>0.8527</td></tr>
+            <tr><td>F1-Score</td><td>0.8925</td></tr>
           </tbody>
         </table>
+        <p className="metrics-note">
+          Tam TEST seti (32.768 görsel) üzerinde ölçüldü. Karşılaştırma: aynı arayüzdeki
+          ResNet18 %85.4 doğruluk / 0.73 recall verir — özel CNN, kaçırılan kanseri
+          <strong> ~%27'den ~%15'e</strong> düşürür.
+        </p>
 
         <h2>{t.about.h2calib}</h2>
         <p>{t.about.pCalib}</p>

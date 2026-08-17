@@ -13,6 +13,8 @@ Calistirma (backend imajiyla):
   docker run --rm -v "<proje>:/work" -w /work pcam_project-backend \
     sh -c "pip install -q h5py && python compute_metrics.py"
 """
+import os
+import sys
 import json
 
 import h5py
@@ -23,11 +25,15 @@ import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # scripts/ -> model_cnn
+from model_cnn import PcamCNN
+
 DEVICE = torch.device("cpu")
 TEST_X = "data/camelyonpatch_level_2_split_test_x.h5"
 TEST_Y = "data/camelyonpatch_level_2_split_test_y.h5"
 OUT_PATH = "frontend/public/metrics.json"
-MODEL_NAMES = ["resnet18", "resnet50"]
+# Sira ONEMLI: Performans sayfasi ilk modeli varsayilan gosterir -> "cnn" basta.
+MODEL_NAMES = ["cnn", "resnet18", "resnet50"]
 MAX_SAMPLES = 8000
 BATCH = 64
 CURVE_POINTS = 60  # ROC/PR egrisi ornek nokta sayisi (JSON kucuk kalsin)
@@ -38,18 +44,27 @@ def _trapz(y, x):
     return fn(y, x)
 
 
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225]),
-])
+def transform_for(name):
+    size = 96 if name == "cnn" else 224
+    return transforms.Compose([
+        transforms.Resize((size, size)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
 
 
 def build_model(name):
+    if name == "cnn":
+        return PcamCNN(hidden=32, n_classes=2)
     m = models.resnet18(weights=None) if name == "resnet18" else models.resnet50(weights=None)
     m.fc = nn.Linear(m.fc.in_features, 2)
     return m
+
+
+def model_weight_path(name):
+    return ("backend/models/cnn_improved.pth" if name == "cnn"
+            else f"backend/models/{name}_pcam_best.pth")
 
 
 def load_temperature(name):
@@ -62,9 +77,10 @@ def load_temperature(name):
 
 def collect_logits(name, idxs, X, Y):
     model = build_model(name)
-    model.load_state_dict(torch.load(f"backend/models/{name}_pcam_best.pth",
+    model.load_state_dict(torch.load(model_weight_path(name),
                                      map_location=DEVICE, weights_only=True))
     model.eval().to(DEVICE)
+    transform = transform_for(name)
 
     logits_all, labels = [], []
     buff_i, buff_l = [], []
