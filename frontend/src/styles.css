@@ -38,40 +38,71 @@ body {
 
 /* ---------- Navbar ---------- */
 .navbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px clamp(24px, 5vw, 90px);
+  padding: 26px clamp(24px, 5vw, 90px);
+  animation: navSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
-.nav-logo { height: 40px; width: auto; display: block; background: #fff; padding: 5px 10px; border-radius: 12px; box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.4); }
+/* landing ruhunda ışıyan alt çizgi */
+.navbar::after {
+  content: "";
+  position: absolute;
+  left: clamp(24px, 5vw, 90px);
+  right: clamp(24px, 5vw, 90px);
+  bottom: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(255, 92, 138, 0.7), rgba(168, 85, 247, 0.7), transparent);
+  background-size: 200% 100%;
+  animation: navUnderline 6s linear infinite;
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+.nav-logo { height: 54px; width: auto; display: block; background: #fff; padding: 6px 12px; border-radius: 14px; box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.45); transition: transform 0.3s ease; }
+.nav-brand:hover .nav-logo { transform: translateY(-2px) rotate(-2deg); }
 .nav-name {
-  font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;
-  background: linear-gradient(120deg, #fff 20%, #ffb3cd 60%, #c9a3ff 100%);
+  font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em;
+  background: linear-gradient(120deg, #fff, #ffb3cd, #c9a3ff, #ffb3cd, #fff);
+  background-size: 220% auto;
   -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: brandShimmer 6s linear infinite;
 }
+@keyframes navSlideIn { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes brandShimmer { 0% { background-position: 0% 50%; } 100% { background-position: 220% 50%; } }
+@keyframes navUnderline { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
 .nav-ribbon { font-size: 1.1rem; }
-.nav-right { display: flex; align-items: center; gap: 20px; }
-.nav-links { display: flex; gap: 26px; }
+.nav-right { display: flex; align-items: center; gap: 28px; }
+.nav-links { display: flex; gap: 32px; }
 .nav-links a {
+  position: relative;
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   transition: color 0.2s;
 }
+/* landing menüsü gibi altı çizilen hover */
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -6px; height: 2px; width: 0;
+  background: linear-gradient(90deg, #ff5c8a, #a855f7);
+  border-radius: 2px;
+  transition: width 0.25s ease;
+}
+.nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
 .nav-links a:hover { color: var(--ink); }
 .nav-links a.active { color: var(--primary); }
 
 .lang-toggle {
-  padding: 6px 12px;
+  padding: 8px 16px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--white);
   color: var(--primary);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.2s;
