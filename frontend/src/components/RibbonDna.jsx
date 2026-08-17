@@ -20,7 +20,8 @@ export default function RibbonDna() {
     if (!p) return;
     const len = p.getTotalLength();
     const arr = [];
-    for (let i = 0; i < N; i++) {
+    // Kuyruk uçlarındaki dik rung'ları atla (başıboş görünmesin)
+    for (let i = 2; i < N - 2; i++) {
       const d = (i / (N - 1)) * len;
       const pt = p.getPointAtLength(d);
       const pt2 = p.getPointAtLength(Math.min(d + 1.5, len));
