@@ -480,6 +480,8 @@ body {
 .landing-footer { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 8px; }
 .landing-legal { max-width: 640px; font-size: 0.74rem; line-height: 1.55; color: #9a92b4; }
 .landing-rights { font-size: 0.72rem; color: #8a83a2; letter-spacing: 0.06em; text-transform: uppercase; }
+.landing-rights a { color: #d9b3ff; text-decoration: none; font-weight: 700; }
+.landing-rights a:hover { color: #fff; }
 
 /* landing kurdele (hücre parıltısının önünde, hafif süzülen) */
 .landing-ribbon {

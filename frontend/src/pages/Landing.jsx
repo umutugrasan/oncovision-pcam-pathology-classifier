@@ -57,7 +57,12 @@ export default function Landing() {
 
       <footer className="landing-footer">
         <p className="landing-legal">{t.landing.disclaimer}</p>
-        <span className="landing-rights">{t.landing.rights}</span>
+        <span className="landing-rights">
+          {t.landing.rights} · Created by{" "}
+          <a href="https://github.com/umutugrasan" target="_blank" rel="noreferrer">
+            Umut Uğraşan
+          </a>
+        </span>
       </footer>
     </div>
   );
