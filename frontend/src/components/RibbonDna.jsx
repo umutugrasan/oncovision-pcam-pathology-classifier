@@ -8,8 +8,10 @@ import { useEffect, useRef, useState } from "react";
  */
 // Kendisiyle çaprazlanan farkındalık kurdelesi: üstte kısa döngü, altta UZUN
 // çapraz kuyruklar (viewBox 260x380). Bead'ler kuyrukları doldurur.
-const PATH = "M88 366 C 200 210 196 66 130 42 C 64 66 60 210 172 366";
-const N = 40;
+// Döngü kontrol noktaları (…196 66 … / … 64 66 …) AYNI kalır (aralık korunur);
+// yalnızca kuyruk uçları aşağı uzatıldı (viewBox 260x440).
+const PATH = "M78 424 C 208 250 196 66 130 42 C 64 66 52 250 182 424";
+const N = 46;
 
 export default function RibbonDna() {
   const pathRef = useRef(null);
@@ -33,7 +35,7 @@ export default function RibbonDna() {
 
   return (
     <div className="rdna" aria-hidden>
-      <svg viewBox="0 0 260 380" className="rdna-svg">
+      <svg viewBox="0 0 260 440" className="rdna-svg">
         <path ref={pathRef} d={PATH} fill="none" stroke="none" />
       </svg>
       <div className="rdna-rungs">
@@ -43,7 +45,7 @@ export default function RibbonDna() {
             className="rdna-rung"
             style={{
               left: `${(r.x / 260) * 100}%`,
-              top: `${(r.y / 380) * 100}%`,
+              top: `${(r.y / 440) * 100}%`,
               transform: `translate(-50%, -50%) rotate(${r.ang + 90}deg)`,
             }}
           >
