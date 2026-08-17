@@ -1,14 +1,29 @@
 import { jsPDF } from "jspdf";
 
-// jsPDF varsayılan fontu Türkçe ğ/ş/ı'yı bozuyor; metinleri ASCII-güvenli yaz.
-function ascii(s) {
-  return String(s)
-    .replaceAll("ğ", "g").replaceAll("Ğ", "G")
-    .replaceAll("ş", "s").replaceAll("Ş", "S")
-    .replaceAll("ı", "i").replaceAll("İ", "I")
-    .replaceAll("ç", "c").replaceAll("Ç", "C")
-    .replaceAll("ö", "o").replaceAll("Ö", "O")
-    .replaceAll("ü", "u").replaceAll("Ü", "U");
+const PDF_FONT = "OncoVisionSans";
+
+async function fontToBase64(path) {
+  const buffer = await fetch(path).then((res) => {
+    if (!res.ok) throw new Error(`Font yüklenemedi: ${path}`);
+    return res.arrayBuffer();
+  });
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+async function registerPdfFont(doc) {
+  const regular = await fontToBase64("/fonts/OncoVisionSans-Regular.ttf");
+  const bold = await fontToBase64("/fonts/OncoVisionSans-Bold.ttf");
+  doc.addFileToVFS("OncoVisionSans-Regular.ttf", regular);
+  doc.addFileToVFS("OncoVisionSans-Bold.ttf", bold);
+  doc.addFont("OncoVisionSans-Regular.ttf", PDF_FONT, "normal");
+  doc.addFont("OncoVisionSans-Bold.ttf", PDF_FONT, "bold");
+  doc.setFont(PDF_FONT, "normal");
 }
 
 function loadImg(src) {
@@ -71,38 +86,39 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   const modelName = (result.model || "-").toUpperCase();
 
   const label = isUncertain
-    ? "BELIRSIZ - Uzman incelemesi gerekli"
+    ? "BELİRSİZ - Uzman incelemesi gerekli"
     : isTumor
-    ? "KANSERLI (Metastaz saptandi)"
-    : "SAGLIKLI (Metastaz saptanmadi)";
+    ? "KANSERLİ (Metastaz saptandı)"
+    : "SAĞLIKLI (Metastaz saptanmadı)";
   const stateColor = isUncertain ? AMBER : isTumor ? PINK : GREEN;
 
   // Kısa analiz metni
   let yorum;
   if (unsuitable) {
     yorum =
-      "Yuklenen goruntunun renk profili H&E boyamasina benzemedigi icin bu model " +
-      "icin uygun degildir; asagidaki sonuc guvenilir kabul edilmemelidir.";
+      "Yüklenen görüntünün renk profili H&E boyamasına benzemediği için bu model " +
+      "için uygun değildir; aşağıdaki sonuç güvenilir kabul edilmemelidir.";
   } else if (isUncertain) {
     yorum =
-      `Model, bu H&E patch'inde karar sinirina cok yakin bir sonuc uretmistir ` +
-      `(tumor olasiligi %${tumorPct}, karar esigi %${thrPct}). Bu nedenle ` +
-      `siniflandirma guvenilir kabul edilmemeli, orneklem uzman patolog tarafindan degerlendirilmelidir.`;
+      `Model, bu H&E patch'inde karar sınırına çok yakın bir sonuç üretmiştir ` +
+      `(tümör olasılığı %${tumorPct}, karar eşiği %${thrPct}). Bu nedenle ` +
+      `sınıflandırma güvenilir kabul edilmemeli, örneklem uzman patolog tarafından değerlendirilmelidir.`;
   } else if (isTumor) {
     yorum =
-      `Model, bu H&E boyali lenf dugumu patch'inde metastatik meme kanseri bulgusu ` +
-      `tespit etmistir (tumor olasiligi %${tumorPct}). Grad-CAM dikkat haritasi, modelin ` +
-      `kararini olustururken isaretli (yesil kare) bolgeye odaklandigini gostermektedir. ` +
-      `Bu otomatik bir on-degerlendirmedir; kesin tani icin uzman patolog incelemesi sarttir.`;
+      `Model, bu H&E boyalı lenf düğümü patch'inde metastatik meme kanseri bulgusu ` +
+      `tespit etmiştir (tümör olasılığı %${tumorPct}). Grad-CAM dikkat haritası, modelin ` +
+      `kararını oluştururken işaretli (yeşil kare) bölgeye odaklandığını göstermektedir. ` +
+      `Bu otomatik bir ön değerlendirmedir; kesin tanı için uzman patolog incelemesi şarttır.`;
   } else {
     yorum =
-      `Model, bu H&E patch'inde metastatik kanser bulgusu tespit etmemistir ` +
-      `(tumor olasiligi %${tumorPct}, saglikli olasiligi %${healthyPct}). ` +
-      `Yine de dusuk olasilikli vakalar tamamen dislanamaz; supheli durumlarda ` +
-      `uzman patolog degerlendirmesi onerilir.`;
+      `Model, bu H&E patch'inde metastatik kanser bulgusu tespit etmemiştir ` +
+      `(tümör olasılığı %${tumorPct}, sağlıklı olasılığı %${healthyPct}). ` +
+      `Yine de düşük olasılıklı vakalar tamamen dışlanamaz; şüpheli durumlarda ` +
+      `uzman patolog değerlendirmesi önerilir.`;
   }
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  await registerPdfFont(doc);
   const L = 14, R = 196, W = R - L;
 
   // dış çerçeve
@@ -118,13 +134,13 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   } catch { /* logo yoksa gec */ }
 
   doc.setTextColor(...INK);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT, "bold");
   doc.setFontSize(19);
   doc.text("OncoVision", 105, 19, { align: "center" });
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT, "normal");
   doc.setFontSize(10.5);
   doc.setTextColor(...GRAY);
-  doc.text("Yapay Zeka Destekli Patoloji Goruntu Analiz Raporu", 105, 26, { align: "center" });
+  doc.text("Yapay Zeka Destekli Patoloji Görüntü Analiz Raporu", 105, 26, { align: "center" });
 
   doc.setDrawColor(...INK);
   doc.setLineWidth(0.6);
@@ -137,14 +153,14 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
     doc.setFillColor(...INK);
     doc.rect(L, y, W, 7, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
+    doc.setFont(PDF_FONT, "bold");
     doc.setFontSize(9.5);
-    doc.text(ascii(text), L + 2.5, y + 4.8);
+    doc.text(text, L + 2.5, y + 4.8);
     y += 7;
   };
 
   // ---- BİLGİ TABLOSU ----
-  sectionBar("RAPOR BILGILERI");
+  sectionBar("RAPOR BİLGİLERİ");
   const now = new Date();
   const ts =
     now.toISOString().slice(0, 10).replaceAll("-", "") + "-" +
@@ -152,7 +168,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   const rows = [
     ["Rapor No", `OV-${ts}`, "Model", modelName],
     ["Rapor Tarihi", now.toLocaleString("tr-TR"), "Analiz Tipi", result.tta ? "TTA (4 varyant ort.)" : "Tekli"],
-    ["Dosya Adi", result.filename || "-", "Karar Esigi", `%${thrPct}`],
+    ["Dosya Adı", result.filename || "-", "Karar Eşiği", `%${thrPct}`],
   ];
   const rh = 7.5;
   const midX = L + W / 2;
@@ -163,13 +179,13 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
     doc.rect(L, ry, W, rh);
     doc.line(midX, ry, midX, ry + rh);
     const cell = (x, k, v) => {
-      doc.setFont("helvetica", "bold");
+      doc.setFont(PDF_FONT, "bold");
       doc.setFontSize(8.5);
       doc.setTextColor(...INK);
-      doc.text(ascii(k) + ":", x + 2, ry + 5);
-      doc.setFont("helvetica", "normal");
+      doc.text(k + ":", x + 2, ry + 5);
+      doc.setFont(PDF_FONT, "normal");
       doc.setTextColor(50, 50, 60);
-      doc.text(ascii(String(v)).slice(0, 34), x + 26, ry + 5);
+      doc.text(String(v).slice(0, 34), x + 26, ry + 5);
     };
     cell(L, r[0], r[1]);
     cell(midX, r[2], r[3]);
@@ -177,7 +193,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   y += rows.length * rh + 5;
 
   // ---- GÖRÜNTÜ (ham + Grad-CAM) ----
-  sectionBar("HAM GORUNTU  VE  GRAD-CAM ISI HARITASI");
+  sectionBar("HAM GÖRÜNTÜ  VE  GRAD-CAM ISI HARİTASI");
   y += 3;
   const imgS = 46;
   const gap = 6;
@@ -193,27 +209,27 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.setLineWidth(0.3);
   doc.rect(L, y, imgS, imgS);
   doc.rect(L + imgS + gap, y, imgS, imgS);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT, "bold");
   doc.setFontSize(8);
   doc.setTextColor(...INK);
-  doc.text("Ham Patoloji Goruntusu", L + imgS / 2, y + imgS + 4.5, { align: "center" });
-  doc.text("Grad-CAM Isi Haritasi", L + imgS + gap + imgS / 2, y + imgS + 4.5, { align: "center" });
+  doc.text("Ham Patoloji Görüntüsü", L + imgS / 2, y + imgS + 4.5, { align: "center" });
+  doc.text("Grad-CAM Isı Haritası", L + imgS + gap + imgS / 2, y + imgS + 4.5, { align: "center" });
   // sağda açıklama
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT, "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(70, 70, 80);
   const lx = L + 2 * imgS + gap + 6;
   const legend = doc.splitTextToSize(
-    "Solda analiz edilen ham H&E patch'i; sagda modelin Grad-CAM dikkat haritasi bindirilmis " +
-    "hali. Kirmizi tonlar modelin en cok odaklandigi alani, yesil kare ise en yogun bolgeyi " +
-    "gosterir. Bu bir dikkat haritasidir; kesin tumor siniri degildir.",
+    "Solda analiz edilen ham H&E patch'i; sağda modelin Grad-CAM dikkat haritası bindirilmiş " +
+    "hali. Kırmızı tonlar modelin en çok odaklandığı alanı, yeşil kare ise en yoğun bölgeyi " +
+    "gösterir. Bu bir dikkat haritasıdır; kesin tümör sınırı değildir.",
     R - lx
   );
   doc.text(legend, lx, y + 5);
   y += imgS + 9;
 
   // ---- SONUÇ ----
-  sectionBar("ANALIZ SONUCU");
+  sectionBar("ANALİZ SONUCU");
   y += 2;
   const boxH = 26;
   doc.setDrawColor(...stateColor);
@@ -223,17 +239,17 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   // sol renk şeridi
   doc.setFillColor(...stateColor);
   doc.rect(L, y, 2.5, boxH, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT, "bold");
   doc.setFontSize(13);
   doc.setTextColor(...stateColor);
-  doc.text(ascii(label), L + 7, y + 9);
-  doc.setFont("helvetica", "normal");
+  doc.text(label, L + 7, y + 9);
+  doc.setFont(PDF_FONT, "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(...INK);
-  doc.text(`Tumor olasiligi: %${tumorPct}`, L + 7, y + 16.5);
-  doc.text(`Saglikli olasiligi: %${healthyPct}`, L + 60, y + 16.5);
+  doc.text(`Tümör olasılığı: %${tumorPct}`, L + 7, y + 16.5);
+  doc.text(`Sağlıklı olasılığı: %${healthyPct}`, L + 60, y + 16.5);
   doc.text(`Model: ${modelName}`, L + 7, y + 22.5);
-  doc.text(`Karar esigi: %${thrPct}${result.tta ? "  -  TTA acik" : ""}`, L + 60, y + 22.5);
+  doc.text(`Karar eşiği: %${thrPct}${result.tta ? "  -  TTA açık" : ""}`, L + 60, y + 22.5);
   // olasılık çubuğu (sağda, kutu içinde)
   const barX = L + 112, barW = 58, barY = y + 13;
   doc.setFillColor(235, 230, 235);
@@ -242,18 +258,18 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.rect(barX, barY, (barW * tumorPct) / 100, 4, "F");
   doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
-  doc.text("tumor %", barX + barW - 12, barY - 1.8);
+  doc.text("tümör %", barX + barW - 12, barY - 1.8);
   doc.text("0", barX, barY + 7.5);
   doc.text("100", barX + barW - 5, barY + 7.5);
   y += boxH + 5;
 
   // ---- KISA ANALİZ ----
-  sectionBar("KISA ANALIZ / YORUM");
+  sectionBar("KISA ANALİZ / YORUM");
   y += 3;
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT, "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(40, 40, 55);
-  const yorumLines = doc.splitTextToSize(ascii(yorum), W - 2);
+  const yorumLines = doc.splitTextToSize(yorum, W - 2);
   doc.text(yorumLines, L + 1, y + 2);
   y += yorumLines.length * 5 + 4;
 
@@ -262,20 +278,18 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.setDrawColor(...LINE);
   doc.setLineWidth(0.3);
   doc.line(L, fy, R, fy);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT, "bold");
   doc.setFontSize(7.5);
   doc.setTextColor(...PINK);
   doc.text("YASAL UYARI", L, fy + 5);
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT, "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
   const uyari = doc.splitTextToSize(
-    ascii(
-      "Bu rapor OncoVision yapay zeka araci tarafindan otomatik uretilmistir ve yalnizca " +
-      "arastirma/egitim amaclidir; klinik tani icin kullanilamaz. Model yalnizca H&E boyali " +
-      "lenf dugumu patch'leri (PCam) icin gecerlidir ve gercek kanserli vakalarin bir kismini " +
-      "kacirabilir. Nihai tani her zaman uzman patolog tarafindan konulmalidir."
-    ),
+    "Bu rapor OncoVision yapay zeka aracı tarafından otomatik üretilmiştir ve yalnızca " +
+    "araştırma/eğitim amaçlıdır; klinik tanı için kullanılamaz. Model yalnızca H&E boyalı " +
+    "lenf düğümü patch'leri (PCam) için geçerlidir ve gerçek kanserli vakaların bir kısmını " +
+    "kaçırabilir. Nihai tanı her zaman uzman patolog tarafından konulmalıdır.",
     W
   );
   doc.text(uyari, L, fy + 9);
@@ -286,7 +300,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.line(L, cy - 3.5, R, cy - 3.5);
   doc.setFontSize(7);
   doc.setTextColor(...INK);
-  doc.text("OncoVision  -  Created by Umut Ugrasan  -  github.com/umutugrasan", L, cy);
+  doc.text("OncoVision  -  Created by Umut Uğraşan  -  github.com/umutugrasan", L, cy);
   doc.text("Sayfa 1 / 1", R, cy, { align: "right" });
 
   const fname = `OncoVision-rapor-${ts}.pdf`;
