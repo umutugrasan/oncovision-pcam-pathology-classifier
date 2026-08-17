@@ -136,7 +136,7 @@ Arayüzü denemek için PCam test setinden PNG patch'ler çıkar:
 
 ```bash
 pip install h5py numpy pillow
-python export_patches.py --n 20 --out test_patches
+python scripts/export_patches.py --n 20 --out test_patches
 ```
 
 `test_patches/kanserli/` ve `test_patches/saglikli/` klasörlerine örnekler
@@ -150,17 +150,25 @@ düşer; bunları arayüze sürükle-bırak yapıp tahminleri kontrol edebilirsi
 ## 📁 Proje yapısı
 
 ```
-PCAM_PROJECT/
-├─ backend/            # FastAPI + PyTorch inference
-│  ├─ main.py          # /predict endpoint
-│  ├─ inference.py     # model yükleme + preprocessing
-│  └─ models/          # resnet18_pcam_best.pth
-├─ frontend/           # React (Vite) arayüz
-├─ export_patches.py   # .h5 -> PNG test aracı
-├─ docker-compose.yml
-├─ train.py            # (eğitim kodu)
-├─ dataset.py          # (veri yükleme + transforms)
-└─ evaluate.py         # (test/metrik)
+OncoVision/
+├─ backend/              # FastAPI + PyTorch inference
+│  ├─ main.py            # /predict, /models endpoint'leri
+│  ├─ inference.py       # model yükleme + preprocessing + Grad-CAM + kalibrasyon + OOD
+│  └─ models/            # resnet18/50 .pth + *_temperature.json
+├─ frontend/             # React (Vite) arayüz — Landing, Analiz, Performans, Hakkında
+│  ├─ src/{pages,components}
+│  └─ public/            # logo, örnek görseller, metrics.json
+├─ scripts/              # yardımcı Python araçları
+│  ├─ train.py           # eğitim
+│  ├─ dataset.py         # veri yükleme + transforms
+│  ├─ evaluate.py        # test / metrik
+│  ├─ calibrate.py       # temperature scaling kalibrasyonu
+│  ├─ compute_metrics.py # performans metrikleri -> metrics.json
+│  └─ export_patches.py  # .h5 -> PNG test aracı
+├─ docs/                 # ekran görüntüleri + rapor
+├─ Dockerfile            # birleşik imaj (tek servis)
+├─ docker-compose.yml    # backend + frontend
+└─ README.md
 ```
 
 ---
