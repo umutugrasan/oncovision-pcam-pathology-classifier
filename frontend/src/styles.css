@@ -126,9 +126,9 @@ body {
 /* ---------- Hero ---------- */
 .hero {
   display: grid;
-  grid-template-columns: 1.45fr 0.55fr;
+  grid-template-columns: 1.3fr 0.7fr;
   align-items: center;
-  gap: 32px;
+  gap: 24px;
   padding: 6px 0 24px;
 }
 .hero-text { display: flex; flex-direction: column; gap: 18px; }
@@ -596,7 +596,7 @@ body {
 
 /* ---------- Kurdele şeklinde DNA (Analiz hero) ---------- */
 .rdna {
-  position: relative; width: 100%; max-width: 330px; aspect-ratio: 260 / 300; margin: 0 auto;
+  position: relative; width: 100%; max-width: 360px; aspect-ratio: 260 / 300; margin: -14px auto 0;
   transform-style: preserve-3d;
   animation: rdnaFloat 9s ease-in-out infinite;
   filter: drop-shadow(0 20px 45px rgba(255, 92, 138, 0.35));

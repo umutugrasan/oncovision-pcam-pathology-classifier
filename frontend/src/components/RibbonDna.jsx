@@ -20,8 +20,8 @@ export default function RibbonDna() {
     if (!p) return;
     const len = p.getTotalLength();
     const arr = [];
-    // Kuyruk uçlarındaki dik rung'ları atla (başıboş görünmesin)
-    for (let i = 2; i < N - 2; i++) {
+    // Sadece tam uç noktayı atla; bead'ler kuyruk uçlarına kadar dolsun
+    for (let i = 1; i < N - 1; i++) {
       const d = (i / (N - 1)) * len;
       const pt = p.getPointAtLength(d);
       const pt2 = p.getPointAtLength(Math.min(d + 1.5, len));
@@ -34,7 +34,7 @@ export default function RibbonDna() {
   return (
     <div className="rdna" aria-hidden>
       <svg viewBox="0 0 260 300" className="rdna-svg">
-        <path ref={pathRef} d={PATH} fill="none" stroke="rgba(255,92,138,0.18)" strokeWidth="1.5" />
+        <path ref={pathRef} d={PATH} fill="none" stroke="none" />
       </svg>
       <div className="rdna-rungs">
         {rungs.map((r) => (
