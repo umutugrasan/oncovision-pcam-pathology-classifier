@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from "react";
  * yola dik yerleşen ve Y ekseninde dönen bir DNA baz çifti koyar. Ardışık
  * bazlar faz kaymalı → kurdeleyi izleyen, dönen çift sarmal.
  */
-// Kendisiyle çaprazlanan (X yapan) farkındalık kurdelesi yolu.
-// Döngü tepesi yukarıda, çaprazlama üst-ortada, kuyruklar altta hafif açılır.
-const PATH = "M100 270 C 178 188 164 86 130 48 C 96 86 82 188 160 270";
-const N = 28;
+// Kendisiyle çaprazlanan farkındalık kurdelesi: üstte kısa döngü, altta UZUN
+// çapraz kuyruklar (viewBox 260x380). Bead'ler kuyrukları doldurur.
+const PATH = "M86 366 C 182 205 166 78 130 40 C 94 78 78 205 174 366";
+const N = 40;
 
 export default function RibbonDna() {
   const pathRef = useRef(null);
@@ -33,7 +33,7 @@ export default function RibbonDna() {
 
   return (
     <div className="rdna" aria-hidden>
-      <svg viewBox="0 0 260 300" className="rdna-svg">
+      <svg viewBox="0 0 260 380" className="rdna-svg">
         <path ref={pathRef} d={PATH} fill="none" stroke="none" />
       </svg>
       <div className="rdna-rungs">
@@ -43,7 +43,7 @@ export default function RibbonDna() {
             className="rdna-rung"
             style={{
               left: `${(r.x / 260) * 100}%`,
-              top: `${(r.y / 300) * 100}%`,
+              top: `${(r.y / 380) * 100}%`,
               transform: `translate(-50%, -50%) rotate(${r.ang + 90}deg)`,
             }}
           >
