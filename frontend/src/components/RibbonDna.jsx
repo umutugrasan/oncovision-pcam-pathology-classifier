@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
  */
 // Kendisiyle çaprazlanan farkındalık kurdelesi: üstte kısa döngü, altta UZUN
 // çapraz kuyruklar (viewBox 260x380). Bead'ler kuyrukları doldurur.
-const PATH = "M86 366 C 182 205 166 78 130 40 C 94 78 78 205 174 366";
+const PATH = "M88 366 C 200 210 196 66 130 42 C 64 66 60 210 172 366";
 const N = 40;
 
 export default function RibbonDna() {
