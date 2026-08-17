@@ -300,7 +300,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.line(L, cy - 3.5, R, cy - 3.5);
   doc.setFontSize(7);
   doc.setTextColor(...INK);
-  doc.text("OncoVision  -  Created by Umut Uğraşan  -  github.com/umutugrasan", L, cy);
+  doc.text("OncoVision  -  Geliştiren: Umut Uğraşan  -  github.com/umutugrasan", L, cy);
   doc.text("Sayfa 1 / 1", R, cy, { align: "right" });
 
   const fname = `OncoVision-rapor-${ts}.pdf`;
