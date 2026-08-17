@@ -210,7 +210,7 @@ body {
 /* ---------- Dropzone ---------- */
 .dropzone {
   position: relative;
-  border: 1.5px dashed #eab6ca;
+  border: none;
   border-radius: 16px;
   padding: 24px;
   text-align: center;
@@ -225,7 +225,22 @@ body {
 }
 .dropzone:hover { border-color: var(--primary); }
 .dropzone.over { border-color: var(--primary); background: rgba(229, 57, 111, 0.05); }
-.dropzone.has-image { border-style: solid; border-color: var(--border); padding: 16px; }
+.dropzone.has-image { padding: 16px; }
+
+/* akan ışıklı kesikli çerçeve */
+.dz-border { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.dz-border-rect {
+  fill: none;
+  stroke: #eab6ca;
+  stroke-width: 2.5;
+  stroke-dasharray: 11 8;
+  filter: drop-shadow(0 0 3px rgba(255, 92, 138, 0.55));
+  animation: march 0.7s linear infinite;
+  transition: stroke 0.2s;
+}
+.dropzone:hover .dz-border-rect,
+.dropzone.over .dz-border-rect { stroke: var(--primary); stroke-width: 3; }
+@keyframes march { to { stroke-dashoffset: -19; } }
 
 .dz-icon { font-size: 2.6rem; margin-bottom: 12px; }
 .dz-empty p { color: var(--ink); font-weight: 600; }

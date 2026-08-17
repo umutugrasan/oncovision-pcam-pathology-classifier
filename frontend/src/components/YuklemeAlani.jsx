@@ -27,6 +27,11 @@ export default function YuklemeAlani({ preview, onSelect, analyzing = false }) {
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
     >
+      {/* akan ışıklı kesikli çerçeve (marching ants) */}
+      <svg className="dz-border" preserveAspectRatio="none">
+        <rect className="dz-border-rect" x="0" y="0" width="100%" height="100%" rx="16" />
+      </svg>
+
       {preview ? (
         <>
           <img src={preview} alt="önizleme" className="preview" />
