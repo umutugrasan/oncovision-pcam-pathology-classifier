@@ -2,16 +2,24 @@ import { useState, useEffect } from "react";
 import CizgiGrafik from "../components/CizgiGrafik.jsx";
 import { useT } from "../i18n.jsx";
 
+// Model kod adı -> arayüzde gösterilecek etiket
+const MODEL_LABELS = { cnn: "Özel CNN", resnet18: "ResNet18", resnet50: "ResNet50" };
+const BEST_MODEL = "cnn";
+
 export default function Performans() {
   const t = useT();
   const [metrics, setMetrics] = useState(null);
   const [error, setError] = useState(false);
-  const [model, setModel] = useState("resnet18");
+  const [model, setModel] = useState(null);  // metrics gelince ilk modele ayarlanır
 
   useEffect(() => {
     fetch("/metrics.json")
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(setMetrics)
+      .then((d) => {
+        setMetrics(d);
+        // Varsayılan seçili model: metrics.json'daki ilk model (cnn = en iyi)
+        setModel(Object.keys(d)[0]);
+      })
       .catch(() => setError(true));
   }, []);
 
@@ -22,7 +30,7 @@ export default function Performans() {
       </div>
     );
 
-  if (!metrics)
+  if (!metrics || !model)
     return (
       <div className="page">
         <div className="card">{t.perf.loading}</div>
@@ -53,7 +61,8 @@ export default function Performans() {
               className={`model-btn ${model === n ? "active" : ""}`}
               onClick={() => setModel(n)}
             >
-              {n.toUpperCase()}
+              {MODEL_LABELS[n] || n.toUpperCase()}
+              {n === BEST_MODEL && <span className="best-badge">★ en iyi</span>}
             </button>
           ))}
         </div>

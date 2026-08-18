@@ -11,6 +11,7 @@ const MODELS_URL = `${API_BASE}/models`;
 
 // Model butonlarinda gosterilecek okunur adlar
 const MODEL_LABELS = { cnn: "Özel CNN", resnet18: "ResNet18", resnet50: "ResNet50" };
+const BEST_MODEL = "cnn";  // TEST'te en iyi -> varsayilan
 
 export default function Anasayfa() {
   const t = useT();
@@ -122,7 +123,7 @@ export default function Anasayfa() {
                   disabled={loading}
                 >
                   {MODEL_LABELS[m] || m.toUpperCase()}
-                  {m === "cnn" && <span className="best-badge">★ en iyi</span>}
+                  {m === BEST_MODEL && <span className="best-badge">★ en iyi</span>}
                 </button>
               ))}
             </div>
