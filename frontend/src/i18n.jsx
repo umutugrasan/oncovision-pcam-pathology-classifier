@@ -15,7 +15,6 @@ const DICT = {
     },
     tool: {
       model: "Model:",
-      tta: "Test-time augmentation (4 yönde ortalama — daha kararlı, biraz yavaş)",
       samplesTitle: "Görselin yok mu? Hazır bir örnek dene:",
       sampleTumor: "Kanserli örnek",
       sampleHealthy: "Sağlıklı örnek",
@@ -121,7 +120,6 @@ const DICT = {
     },
     tool: {
       model: "Model:",
-      tta: "Test-time augmentation (average of 4 flips — steadier, slightly slower)",
       samplesTitle: "No image? Try a ready-made sample:",
       sampleTumor: "Tumor sample",
       sampleHealthy: "Healthy sample",

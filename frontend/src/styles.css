@@ -326,8 +326,6 @@ body {
 .sample-thumb span { font-size: 0.68rem; color: var(--muted); }
 
 /* ---------- TTA toggle ---------- */
-.tta-toggle { display: flex; align-items: center; gap: 9px; margin-top: 16px; font-size: 0.82rem; color: var(--muted); cursor: pointer; }
-.tta-toggle input { accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px; }
 
 /* ---------- Butonlar ---------- */
 .analyze-btn {

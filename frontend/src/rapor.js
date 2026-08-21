@@ -147,7 +147,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
     now.toTimeString().slice(0, 8).replaceAll(":", "");
   const rows = [
     ["Rapor No", `OV-${ts}`, "Model", modelName],
-    ["Rapor Tarihi", now.toLocaleString("tr-TR"), "Analiz Tipi", result.tta ? "TTA (4 varyant ort.)" : "Tekli"],
+    ["Rapor Tarihi", now.toLocaleString("tr-TR"), "Analiz Tipi", result.tta ? "8 yönlü TTA (D8 ort.)" : "Tekli"],
     ["Dosya Adı", result.filename || "-", "Karar Eşiği", `%${thrPct}`],
   ];
   const rh = 7.5;
@@ -226,7 +226,7 @@ export async function raporIndir({ result, preview, threshold = 0.5, hmOpacity =
   doc.text(`Tümör olasılığı: %${tumorPct}`, L + 7, y + 16.5);
   doc.text(`Sağlıklı olasılığı: %${healthyPct}`, L + 60, y + 16.5);
   doc.text(`Model: ${modelName}`, L + 7, y + 22.5);
-  doc.text(`Karar eşiği: %${thrPct}${result.tta ? "  ·  TTA açık" : ""}`, L + 60, y + 22.5);
+  doc.text(`Karar eşiği: %${thrPct}${result.tta ? "  ·  8 yönlü TTA" : ""}`, L + 60, y + 22.5);
   const barX = L + 112, barW = 58, barY = y + 13;
   doc.setFillColor(235, 230, 235);
   doc.rect(barX, barY, barW, 4, "F");
