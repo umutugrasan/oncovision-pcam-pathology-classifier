@@ -52,12 +52,14 @@ except Exception:
 
 
 class HEDStain:
-    """H&E boyama varyansini taklit eder: RGB->HED, kanallari hafif oynat, geri don."""
-    def __init__(self, sigma=0.05):
+    """H&E boyama varyansini taklit eder: RGB->HED, kanallari hafif oynat, geri don.
+    prob<1 ise bazi goruntulerde atlanir (skimage yavas oldugu icin CPU tasarrufu)."""
+    def __init__(self, sigma=0.05, prob=1.0):
         self.sigma = sigma
+        self.prob = prob
 
     def __call__(self, img):
-        if not _HAS_SKIMAGE:
+        if not _HAS_SKIMAGE or (self.prob < 1.0 and random.random() > self.prob):
             return img
         arr = np.asarray(img).astype(np.float32) / 255.0
         hed = rgb2hed(arr)
@@ -75,13 +77,13 @@ class RandomRotate90:
         return TF.rotate(img, random.choice([0, 90, 180, 270]))
 
 
-def build_transforms(size):
+def build_transforms(size, hed_prob=1.0):
     resize = [transforms.Resize((size, size))] if size != 96 else []
     train = transforms.Compose([
         RandomRotate90(),
         transforms.RandomHorizontalFlip(0.5),
         transforms.RandomVerticalFlip(0.5),
-        HEDStain(0.05),
+        HEDStain(0.05, prob=hed_prob),
         *resize,
         transforms.ToTensor(),
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
@@ -212,6 +214,8 @@ def main():
     ap.add_argument("--workers", type=int, default=4, help="paralel veri yukleyici isci sayisi (GPU'yu bekletmemek icin)")
     ap.add_argument("--tag", default="", help="cikti dosyasina ek etiket (ornek: v2 -> cnn_improved_v2.pth); mevcut modeli EZMEMEK icin")
     ap.add_argument("--ema-decay", type=float, default=0.999, help="EMA (agirlik ortalamasi) katsayisi; 0 = EMA kapali")
+    ap.add_argument("--no-amp", action="store_true", help="mixed precision'i kapat (varsayilan: GPU'da acik)")
+    ap.add_argument("--hed-prob", type=float, default=1.0, help="HED stain augmentation uygulanma olasiligi; CPU darbogazinda 0.5 dene")
     args = ap.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -219,7 +223,7 @@ def main():
     torch.manual_seed(42); np.random.seed(42); random.seed(42)
 
     size = 96 if args.model == "cnn" else 224
-    train_tf, eval_tf = build_transforms(size)
+    train_tf, eval_tf = build_transforms(size, hed_prob=args.hed_prob)
     train_dl = loader("train", "train", train_tf, args.batch, args.limit, shuffle=True, workers=args.workers)
     val_dl = loader("valid", "valid", eval_tf, args.batch, args.limit, workers=args.workers)
     test_dl = loader("test", "test", eval_tf, args.batch, args.limit, workers=args.workers)
@@ -239,16 +243,22 @@ def main():
     use_ema = args.ema_decay and args.ema_decay > 0
     ema = EMA(model, args.ema_decay) if use_ema else None
 
+    # Mixed precision (AMP): GPU'da ~2× hiz, sonuclari degistirmez. CPU'da kapali.
+    use_amp = (device == "cuda") and not args.no_amp
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+
     for epoch in range(1, args.epochs + 1):
         model.train()
         run_loss = 0.0
         for X, yb in tqdm(train_dl, desc=f"Epoch {epoch}/{args.epochs}", leave=False):
             yb = yb.squeeze().long() if yb.ndim > 1 else yb.long()
-            X, yb = X.to(device), yb.to(device)
-            opt.zero_grad()
-            loss = crit(model(X), yb)
-            loss.backward()
-            opt.step()
+            X, yb = X.to(device, non_blocking=True), yb.to(device, non_blocking=True)
+            opt.zero_grad(set_to_none=True)
+            with torch.amp.autocast("cuda", enabled=use_amp):
+                loss = crit(model(X), yb)
+            scaler.scale(loss).backward()
+            scaler.step(opt)
+            scaler.update()
             if ema is not None:
                 ema.update(model)
             run_loss += loss.item() * X.size(0)
