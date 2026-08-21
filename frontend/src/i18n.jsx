@@ -40,7 +40,7 @@ const DICT = {
       healthyProb: "Sağlıklı",
       threshold: "Karar eşiği",
       model: "Model",
-      ttaOn: "TTA açık",
+      ttaOn: "8 yönlü TTA",
       gradcamTitle: "🔥 Modelin odaklandığı bölge (Grad-CAM)",
       gradcamHint:
         "Kırmızı = modelin en çok baktığı alan · yeşil kare = en yoğun bölge. Bu bir dikkat haritasıdır, kesin tümör sınırı değildir.",
@@ -146,7 +146,7 @@ const DICT = {
       healthyProb: "Healthy",
       threshold: "Decision threshold",
       model: "Model",
-      ttaOn: "TTA on",
+      ttaOn: "8-way TTA",
       gradcamTitle: "🔥 Region the model focused on (Grad-CAM)",
       gradcamHint:
         "Red = where the model looked most · green box = the hottest region. This is an attention map, not a precise tumor boundary.",

@@ -23,7 +23,6 @@ export default function Anasayfa() {
   const [threshold, setThreshold] = useState(0.5);
   const [models, setModels] = useState(["cnn"]);
   const [selectedModel, setSelectedModel] = useState("cnn");
-  const [useTta, setUseTta] = useState(false);
 
   const SAMPLES = [
     { src: "/samples/ornek-kanserli-1.png", label: t.tool.sampleTumor },
@@ -81,7 +80,7 @@ export default function Anasayfa() {
       const form = new FormData();
       form.append("file", theFile);
       form.append("model", selectedModel);
-      form.append("tta", useTta);
+      // TTA sunucuda yönetilir: CNN (en iyi model) otomatik 8-yönlü TTA kullanır.
       const res = await fetch(API_URL, { method: "POST", body: form });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -156,17 +155,6 @@ export default function Anasayfa() {
               ))}
             </div>
           </div>
-        )}
-
-        {!result && !loading && (
-          <label className="tta-toggle">
-            <input
-              type="checkbox"
-              checked={useTta}
-              onChange={(e) => setUseTta(e.target.checked)}
-            />
-            <span>{t.tool.tta}</span>
-          </label>
         )}
 
         {!result && (
