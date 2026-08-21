@@ -2,8 +2,8 @@
 
 PatchCamelyon (PCam) veri seti üzerinde eğitilmiş modelleri modern bir web
 arayüzü üzerinden servis eden uygulama. Varsayılan ve **en iyi model, bu proje
-için sıfırdan tasarlanıp eğitilen özel bir CNN**'dir (TEST'te **%89.7 doğruluk /
-0.85 recall**); karşılaştırma için ResNet18 ve ResNet50 (transfer learning) de
+için sıfırdan tasarlanıp eğitilen özel bir CNN**'dir (TEST'te **%90.3 doğruluk /
+0.86 recall**, 8-yönlü TTA ile); karşılaştırma için ResNet18 ve ResNet50 (transfer learning) de
 seçilebilir. Kullanıcı bir patoloji görseli yükler; model **kanserli / sağlıklı**
 tahmini, güven skoru ve **Grad-CAM** dikkat haritası döndürür.
 
@@ -21,7 +21,7 @@ tahmini, güven skoru ve **Grad-CAM** dikkat haritası döndürür.
 - **Belirsizlik uyarısı** — karar sınırındaki vakalarda "Belirsiz, uzman incelemesi gerekli"
 - **Ayarlanabilir karar eşiği** — recall/precision dengesini slider ile canlı ayarla
 - **Model seçimi** — Özel CNN (varsayılan, en iyi) ↔ ResNet18 ↔ ResNet50 karşılaştırma
-- **Test-time augmentation (TTA)** — 4 varyant ortalaması ile daha kararlı tahmin
+- **Test-time augmentation (TTA)** — 8-yönlü D8 (döndürme + ayna) ortalaması; CNN'de varsayılan açık (%89.7 → %90.3)
 - **OOD kontrolü** — H&E/PCam profiline benzemeyen görsellerde "bu görsel uygun değil" uyarısı
 - **PDF rapor** — her analiz için indirilebilir çıktı (görsel + Grad-CAM + skor + tarih + uyarı)
 - **Hazır örnek galeri** — tıklayınca otomatik analiz edilen örnek görseller
@@ -67,25 +67,26 @@ merkezindeki dokuda **metastatik meme kanseri** olup olmadığını sınıfland�
 
 ### Model performansı (tüm PCam TEST seti, 32.768 örnek)
 
-| Metrik | **Özel CNN** ⭐ | ResNet18 |
+| Metrik | **Özel CNN** ⭐ (8-yönlü TTA) | ResNet18 |
 |---|---|---|
-| Test Doğruluğu | **%89.73** | %85.43 |
-| Precision | 0.9362 | 0.9690 |
-| Recall | **0.8527** | 0.7318 |
-| F1-Score | **0.8925** | 0.8339 |
+| Test Doğruluğu | **%90.30** | %85.43 |
+| Precision | 0.9431 | 0.9690 |
+| Recall | **0.8577** | 0.7318 |
+| F1-Score | **0.8984** | 0.8339 |
 
-> **Özel CNN, kaçırılan kanseri ~%27'den ~%15'e düşürür** (recall 0.73 → 0.85) —
-> klinik açıdan en kritik kazanç budur. Yine de model klinik tanı için uygun
-> değildir; yalnızca araştırma / eğitim amaçlıdır.
+> **Özel CNN, kaçırılan kanseri ~%27'den ~%14'e düşürür** (recall 0.73 → 0.86) —
+> klinik açıdan en kritik kazanç budur. Değerler 8-yönlü test-time augmentation
+> (TTA) ile; uygulama CNN'i varsayılan olarak TTA ile servis eder. Yine de model
+> klinik tanı için uygun değildir; yalnızca araştırma / eğitim amaçlıdır.
 
-### Karışıklık Matrisi (Özel CNN — tüm TEST seti)
+### Karışıklık Matrisi (Özel CNN — tüm TEST seti, 8-yönlü TTA)
 
 ![Confusion Matrix](docs/confusion_matrix.png)
 
 |  | Tahmin: Sağlıklı | Tahmin: Kanserli |
 |---|---|---|
-| **Gerçek: Sağlıklı** | 15439 (TN) | 952 (FP) |
-| **Gerçek: Kanserli** | 2412 (FN) | 13965 (TP) |
+| **Gerçek: Sağlıklı** | 15543 (TN) | 848 (FP) |
+| **Gerçek: Kanserli** | 2330 (FN) | 14047 (TP) |
 
 ---
 

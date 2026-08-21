@@ -75,7 +75,16 @@ def load_temperature(name):
         return 1.0
 
 
-def collect_logits(name, idxs, X, Y):
+def _d8_logits(model, batch):
+    """8 dihedral görünümün logit ortalaması (TTA)."""
+    out = 0
+    for k in range(4):
+        r = torch.rot90(batch, k, dims=[2, 3])
+        out = out + model(r) + model(torch.flip(r, dims=[3]))
+    return out / 8.0
+
+
+def collect_logits(name, idxs, X, Y, tta=False):
     model = build_model(name)
     model.load_state_dict(torch.load(model_weight_path(name),
                                      map_location=DEVICE, weights_only=True))
@@ -90,10 +99,12 @@ def collect_logits(name, idxs, X, Y):
             buff_i.append(transform(Image.fromarray(arr, "RGB")))
             buff_l.append(int(np.array(Y[i]).flatten()[0]))
             if len(buff_i) == BATCH or c == len(idxs) - 1:
-                logits_all.append(model(torch.stack(buff_i).to(DEVICE)).cpu())
+                b = torch.stack(buff_i).to(DEVICE)
+                out = _d8_logits(model, b) if tta else model(b)
+                logits_all.append(out.cpu())
                 labels.extend(buff_l)
                 buff_i, buff_l = [], []
-                print(f"  {name}: {c + 1}/{len(idxs)}", end="\r")
+                print(f"  {name}{'(TTA)' if tta else ''}: {c + 1}/{len(idxs)}", end="\r")
     return torch.cat(logits_all), np.array(labels)
 
 
@@ -159,7 +170,8 @@ def main():
 
     out = {}
     for name in MODEL_NAMES:
-        logits, labels = collect_logits(name, idxs, X, Y)
+        # Özel CNN uygulamada TTA ile servis edilir -> metrikleri de TTA ile üret
+        logits, labels = collect_logits(name, idxs, X, Y, tta=(name == "cnn"))
         T = load_temperature(name)
         p_raw = F.softmax(logits, dim=1)[:, 1].numpy()
         p_cal = F.softmax(logits / T, dim=1)[:, 1].numpy()

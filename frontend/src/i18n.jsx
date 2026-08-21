@@ -68,12 +68,12 @@ const DICT = {
       tech1: "Varsayılan: Özel CNN — 4 evrişim bloğu (BN + ReLU) + GlobalAvgPool, 96×96 girdi",
       tech2: "Çıktı: 2 sınıflı softmax (0 = Sağlıklı, 1 = Kanserli)",
       tech3: "Eğitim: güçlü augmentation (D8 + HED stain), AdamW + Cosine LR + label smoothing",
-      h2perf: "Performans (Özel CNN — en iyi model, TEST)",
+      h2perf: "Performans (Özel CNN — en iyi model, 8-yönlü TTA)",
       h2calib: "Güven skoru kalibrasyonu",
       pCalib:
         "Nöral ağların ham softmax çıktısı genelde aşırı özgüvenlidir; model yanılırken bile %99 diyebilir. Bunu düzeltmek için temperature scaling (Guo et al., 2017) uyguladık: özel CNN için validation setinde en iyi sıcaklık T = 0.84 bulundu ve logit'ler bu değere bölünerek güven yüzdesi gerçekçi hale getirildi. Kalibrasyon hatası (ECE) 0.0271 → 0.0047'ye düştü. Bu işlem tahminleri ve doğruluğu değiştirmez; yalnızca gösterilen yüzdeyi güvenilir kılar.",
       warn:
-        "⚠️ Kısıt: Recall ~0.85 olduğundan model, gerçek kanserli vakaların yaklaşık %15'ini kaçırabilir. Bu nedenle araç klinik tanı için uygun değildir ve yalnızca araştırma / eğitim amaçlıdır.",
+        "⚠️ Kısıt: Recall ~0.86 olduğundan model, gerçek kanserli vakaların yaklaşık %14'ünü kaçırabilir. Bu nedenle araç klinik tanı için uygun değildir ve yalnızca araştırma / eğitim amaçlıdır.",
       credit: "Geliştiren",
     },
     landing: {
@@ -174,12 +174,12 @@ const DICT = {
       tech1: "Default: custom CNN — 4 conv blocks (BN + ReLU) + GlobalAvgPool, 96×96 input",
       tech2: "Output: 2-class softmax (0 = Healthy, 1 = Tumor)",
       tech3: "Training: strong augmentation (D8 + HED stain), AdamW + Cosine LR + label smoothing",
-      h2perf: "Performance (custom CNN — best model, TEST)",
+      h2perf: "Performance (custom CNN — best model, 8-way TTA)",
       h2calib: "Confidence calibration",
       pCalib:
         "Raw softmax outputs of neural nets are usually overconfident; the model can say 99% even when wrong. To fix this we applied temperature scaling (Guo et al., 2017): for the custom CNN the best temperature T = 0.84 was found on the validation set and logits are divided by it to make the confidence realistic. Calibration error (ECE) dropped 0.0271 → 0.0047. This does not change predictions or accuracy; it only makes the displayed percentage trustworthy.",
       warn:
-        "⚠️ Limitation: With recall ~0.85, the model may miss about 15% of true cancer cases. Therefore the tool is not suitable for clinical diagnosis and is for research / education only.",
+        "⚠️ Limitation: With recall ~0.86, the model may miss about 14% of true cancer cases. Therefore the tool is not suitable for clinical diagnosis and is for research / education only.",
       credit: "Created by",
     },
     landing: {
